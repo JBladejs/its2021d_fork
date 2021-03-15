@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://gitlab.com/mariusz.jarocki/its2021d/issues"
   },
-  "homepage": "https://gitlab.com/mariusz.jarocki/its2021d#readme"
+  "homepage": "https://gitlab.com/mariusz.jarocki/its2021d#readme",
+  "dependencies": {
+    "node-static": "^0.7.11"
+  }
 }
