@@ -1,0 +1,20 @@
+{
+  "name": "its2021d",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/mariusz.jarocki/its2021d.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/mariusz.jarocki/its2021d/issues"
+  },
+  "homepage": "https://gitlab.com/mariusz.jarocki/its2021d#readme"
+}
