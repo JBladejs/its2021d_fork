@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="its2021d">
     <head>
         <meta charset="utf-8"/>
         <title>its2021d</title>
@@ -12,11 +12,13 @@
         <script src="node_modules/bootstrap3/dist/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div class="container">
-            <h1>Interaktywne Technologie Sieciowe 2021 (d)</h1>
+        <div class="container" ng-controller="Ctrl as ctrl">
+            <h1 ng-click="ctrl.interakcja()">Interaktywne Technologie Sieciowe 2021 (d)</h1>
             
         </div>
         <script src="node_modules/angular/angular.min.js"></script>
         <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+
+        <script src="js/main.js"></script>
     </body>
 </html>

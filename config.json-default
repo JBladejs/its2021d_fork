@@ -1,0 +1,6 @@
+{
+    "frontend_dir": "./public",
+    "port": 8888,
+    "dbUrl": "mongodb://localhost:27017",
+    "dbName": "its2021d"
+}
