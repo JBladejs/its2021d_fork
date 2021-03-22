@@ -17,6 +17,8 @@ console.log('Konfiguracja serwera:', config)
 const httpServer = http.createServer()
 const fileServer = new nodestatic.Server(config.frontend_dir, { cache: config.cache })
 
+let persons = []
+
 // zdefiniowanie reakcji na request http
 httpServer.on('request', function(req, res) {
 
@@ -67,10 +69,16 @@ httpServer.on('request', function(req, res) {
 
                 // endpointy restowe
                 case '/endpoint':
-                    console.log('---')
-                    console.log(session, env.parsedUrl.query, env.parsedPayload)
-                    console.log('---')
-                    common.serveError(res, 418, 'Not implemented')
+                    switch(req.method) {
+                        case 'GET':
+                            common.serveJson(res, 200, persons)
+                            return
+                        case 'POST':
+                            persons.push(env.parsedPayload)
+                            common.serveJson(res, 200, env.parsedPayload)
+                            return
+                    }
+                    common.serveError(res, 405, 'Not implemented')
                     return
 
                 // serwowanie statycznej treści
