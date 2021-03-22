@@ -14,7 +14,16 @@
     <body>
         <div class="container" ng-controller="Ctrl as ctrl">
             <h1 ng-click="ctrl.interakcja()">Interaktywne Technologie Sieciowe 2021 (d)</h1>
-            
+
+            <hr/>
+
+            <form class="form-inline">
+                <input type="number" class="form-control" ng-model="ctrl.x"/>
+                <input type="text" class="form-control" ng-model="ctrl.y"/>
+                <input type="text" class="form-control" ng-model="ctrl.a"/>
+                <input type="number" class="form-control" ng-model="ctrl.b"/>
+                <button class="btn btn-primary" ng-click="ctrl.wyslij()">Wyślij</button>
+            </form>
         </div>
         <script src="node_modules/angular/angular.min.js"></script>
         <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
