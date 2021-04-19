@@ -18,7 +18,11 @@ console.log('Konfiguracja serwera:', config)
 const httpServer = http.createServer()
 const fileServer = new nodestatic.Server(config.frontend_dir, { cache: config.cache })
 
-let persons = []
+let persons = [
+    { firstName: 'Jan', lastName: 'Kowalski' },
+    { firstName: 'Wojciech', lastName: 'Nowak' },
+    { firstName: 'Ewa', lastName: 'Żuk' }
+]
 
 // zdefiniowanie reakcji na request http
 httpServer.on('request', function(req, res) {
@@ -70,10 +74,15 @@ httpServer.on('request', function(req, res) {
 
                 // endpointy restowe
                 case '/endpoint':
+
+                    let id = -1
+                    if(env.parsedUrl.query.id) {
+                        id = parseInt(env.parsedUrl.query.id)
+                    }
+
                     switch(req.method) {
                         case 'GET':
-                            if(env.parsedUrl.query.id) {
-                                let id = parseInt(env.parsedUrl.query.id)
+                            if(id >= 0) {
                                 if(persons[id])
                                     common.serveJson(res, 200, persons[id])
                                 else
@@ -85,9 +94,27 @@ httpServer.on('request', function(req, res) {
                             persons.push(env.parsedPayload)
                             common.serveJson(res, 200, env.parsedPayload)
                             return
+                        case 'PUT':
+                            if(id >= 0) {
+                                if(persons[id]) {
+                                    persons[id] = env.parsedPayload
+                                    common.serveJson(res, 200, persons[id])
+                                } else
+                                    common.serveError(res, 404, 'Not found')
+                            } else
+                                common.serveError(res, 404, 'No index')
+                            return
                         case 'DELETE':
-                            persons.length = 0
-                            common.serveJson(res, 200, persons)
+                            if(id >= 0) {
+                                if(persons[id]) {
+                                    common.serveJson(res, 200, persons[id])
+                                    persons.splice(id, 1)
+                                } else
+                                    common.serveError(res, 404, 'Not found')
+                            } else {
+                                persons.length = 0
+                                common.serveJson(res, 200, persons)
+                            }
                             return
                     }
                     common.serveError(res, 405, 'Not implemented')
