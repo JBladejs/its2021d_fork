@@ -10,6 +10,7 @@ const uuid = require('uuid')
 
 // moduły własne
 const common = require('./common')
+const { ESTALE } = require('constants')
 
 // inicjalizacja globalnych obiektów
 let config = JSON.parse(fs.readFileSync('config.json'))
@@ -71,11 +72,22 @@ httpServer.on('request', function(req, res) {
                 case '/endpoint':
                     switch(req.method) {
                         case 'GET':
-                            common.serveJson(res, 200, persons)
+                            if(env.parsedUrl.query.id) {
+                                let id = parseInt(env.parsedUrl.query.id)
+                                if(persons[id])
+                                    common.serveJson(res, 200, persons[id])
+                                else
+                                    common.serveError(res, 404, 'Not found')
+                            } else
+                                common.serveJson(res, 200, persons)
                             return
                         case 'POST':
                             persons.push(env.parsedPayload)
                             common.serveJson(res, 200, env.parsedPayload)
+                            return
+                        case 'DELETE':
+                            persons.length = 0
+                            common.serveJson(res, 200, persons)
                             return
                     }
                     common.serveError(res, 405, 'Not implemented')

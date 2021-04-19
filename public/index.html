@@ -15,7 +15,10 @@
         <div class="container" ng-controller="Ctrl as ctrl">
 
             <table class="table table-hover">
-                <tr ng-repeat="person in ctrl.persons">
+                <tr>
+                    <th>Imię</th><th>Nazwisko</th>
+                </tr>
+                <tr ng-repeat="person in ctrl.persons" ng-click="ctrl.wybierz($index)">
                     <td ng-bind="person.firstName"></td>
                     <td ng-bind="person.lastName"></td>
                 </tr>
@@ -24,7 +27,8 @@
             <form class="form-inline">
                 <input type="text" class="form-control" ng-model="ctrl.person.firstName" placeholder="imię"/>
                 <input type="text" class="form-control" ng-model="ctrl.person.lastName" placeholder="nazwisko"/>
-                <button class="btn btn-primary" ng-click="ctrl.wyslij()">Wyślij</button>
+                <button class="btn btn-primary fa fa-send" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.person.firstName || !ctrl.person.lastName"></button>
+                <button class="btn btn-danger fa fa-trash" ng-click="ctrl.zeruj()"></button>
             </form>
 
         </div>
