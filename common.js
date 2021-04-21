@@ -1,5 +1,7 @@
 let common = module.exports = {
 
+    config: {},
+
     sessions: {},
 
     serveJson: function(res, code, obj) {

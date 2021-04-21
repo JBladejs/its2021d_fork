@@ -10,13 +10,14 @@ const uuid = require('uuid')
 
 // moduły własne
 const common = require('./common')
-const { ESTALE } = require('constants')
+const db = require('./db')
+const dbrest = require('./dbrest')
 
 // inicjalizacja globalnych obiektów
-let config = JSON.parse(fs.readFileSync('config.json'))
-console.log('Konfiguracja serwera:', config)
+common.config = JSON.parse(fs.readFileSync('config.json'))
+console.log('Konfiguracja serwera:', common.config)
 const httpServer = http.createServer()
-const fileServer = new nodestatic.Server(config.frontend_dir, { cache: config.cache })
+const fileServer = new nodestatic.Server(common.config.frontend_dir, { cache: common.config.cache })
 
 let persons = [
     { firstName: 'Jan', lastName: 'Kowalski' },
@@ -72,52 +73,19 @@ httpServer.on('request', function(req, res) {
             // właściwa obsługa żądania
             switch(env.parsedUrl.pathname) {
 
-                // endpointy restowe
-                case '/endpoint':
+                // endpoint do kolekcji persons
+                case '/person':
 
-                    let id = -1
-                    if(env.parsedUrl.query.id) {
-                        id = parseInt(env.parsedUrl.query.id)
-                    }
-
-                    switch(req.method) {
-                        case 'GET':
-                            if(id >= 0) {
-                                if(persons[id])
-                                    common.serveJson(res, 200, persons[id])
-                                else
-                                    common.serveError(res, 404, 'Not found')
-                            } else
-                                common.serveJson(res, 200, persons)
-                            return
-                        case 'POST':
-                            persons.push(env.parsedPayload)
-                            common.serveJson(res, 200, env.parsedPayload)
-                            return
-                        case 'PUT':
-                            if(id >= 0) {
-                                if(persons[id]) {
-                                    persons[id] = env.parsedPayload
-                                    common.serveJson(res, 200, persons[id])
-                                } else
-                                    common.serveError(res, 404, 'Not found')
-                            } else
-                                common.serveError(res, 404, 'No index')
-                            return
-                        case 'DELETE':
-                            if(id >= 0) {
-                                if(persons[id]) {
-                                    common.serveJson(res, 200, persons[id])
-                                    persons.splice(id, 1)
-                                } else
-                                    common.serveError(res, 404, 'Not found')
-                            } else {
-                                persons.length = 0
-                                common.serveJson(res, 200, persons)
+                    dbrest.handle(env, db.persons, 
+                        [ 
+                            { $sort: { lastName: 1, firstName: 1 }}
+                        ],
+                        function(payload) {
+                            if(Array.isArray(payload.projects)) {
+                                payload.projects = payload.projects.map(function(el) { return db.ObjectId(el) })
                             }
-                            return
-                    }
-                    common.serveError(res, 405, 'Not implemented')
+                        }
+                    )
                     return
 
                 // serwowanie statycznej treści
@@ -133,8 +101,9 @@ httpServer.on('request', function(req, res) {
 
 // uruchomienie serwera http
 try {
-    httpServer.listen(config.port)
-    console.log('Serwer nasłuchuje na porcie', config.port)
+    db.init(common.config.dbUrl, common.config.dbName)
+    httpServer.listen(common.config.port)
+    console.log('Serwer nasłuchuje na porcie', common.config.port)
 } catch(ex) {
     console.error('Błąd inicjalizacji:', ex.message)
     process.exit(0)

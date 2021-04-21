@@ -4,19 +4,21 @@ const db = module.exports = {
 
     persons: null,
 
+    ObjectId: mongodb.ObjectId,
+
     init: function(dbUrl, dbName) {
         mongodb.MongoClient.connect(dbUrl, { useUnifiedTopology: true }, function(err, conn) {
             if(err) {
                 throw new Error(err.message)
             }
-            console.log('Connection to database', dbUrl, 'established')
+            console.log('Połączenie z bazą', dbName, 'na', dbUrl, 'zestawione')
             var adb = conn.db(dbName)
-            persons = adb.collection('persons')
-            persons.countDocuments(function(err, n) {
+            db.persons = adb.collection('persons')
+            db.persons.countDocuments(function(err, n) {
                 if(err) {
                     throw new Error(err.message)
                 }
-                console.log('Number of persons', n)                    
+                console.log('Liczba obiektów w kolekcji persons', n)                    
             })
         })
     }
