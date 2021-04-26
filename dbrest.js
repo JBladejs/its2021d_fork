@@ -1,7 +1,7 @@
 let common = require('./common')
 let db = require('./db')
 
-let collectionRest = module.exports = {
+let dbrest = module.exports = {
     
     getObjects: function(_id, collection, aggregation, nextTick) {
         if(_id) {
@@ -38,7 +38,7 @@ let collectionRest = module.exports = {
                     aggregation.unshift({ $match: searchFilter })
                 }
 
-                collectionRest.getObjects(_id, collection, aggregation, function(err, docs) {
+                dbrest.getObjects(_id, collection, aggregation, function(err, docs) {
                     if(err) {
                         common.serveError(env.res, 400, err.message)
                     } else {
@@ -72,6 +72,10 @@ let collectionRest = module.exports = {
             case 'POST':
                 // utwórz nowy obiekt w bazie
                 
+                if(env.parsedPayload._id) {
+                    common.serveError(env.res, 400, 'No _id allowed')
+                    return
+                }
                 if(inputTransformation) {
                     try {
                         inputTransformation(env.parsedPayload)
@@ -90,7 +94,7 @@ let collectionRest = module.exports = {
                         if(err || !result.ops || !result.ops[0]) {
                             common.serveError(env.res, 400, err ? err.message : 'Error during insertOne')
                         } else {
-                            collectionRest.getObjects(result.ops[0]._id, collection, aggregation, function(err, docs) {
+                            dbrest.getObjects(result.ops[0]._id, collection, aggregation, function(err, docs) {
                                 if(err) {
                                     common.serveError(env.res, 400, err.message)
                                 } else {
@@ -125,7 +129,7 @@ let collectionRest = module.exports = {
                             if(err) {
                                 common.serveError(env.res, 400, err.message)
                             } else {
-                                collectionRest.getObjects(_id, collection, aggregation, function(err, docs) {
+                                dbrest.getObjects(_id, collection, aggregation, function(err, docs) {
                                     if(err) {
                                         common.serveError(env.res, 400, err.message)
                                     } else {

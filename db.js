@@ -20,6 +20,13 @@ const db = module.exports = {
                 }
                 console.log('Liczba obiektów w kolekcji persons', n)                    
             })
+            db.projects = adb.collection('projects')
+            db.projects.countDocuments(function(err, n) {
+                if(err) {
+                    throw new Error(err.message)
+                }
+                console.log('Liczba obiektów w kolekcji projects', n)                    
+            })
         })
     }
 

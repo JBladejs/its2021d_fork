@@ -84,6 +84,18 @@ httpServer.on('request', function(req, res) {
                     )
                     return
 
+
+                // endpoint do kolekcji projects
+                case '/project':
+
+                    dbrest.handle(env, db.projects, 
+                        [ 
+                            { $sort: { shortName: 1 } }
+                        ],
+                        [ 'shortName', 'name' ]
+                    )
+                    return
+
                 // serwowanie statycznej treści
                 default:
                     if(req.method == 'GET') {
