@@ -1,7 +1,7 @@
-var common = require('./common')
-var db = require('./db')
+let common = require('./common')
+let db = require('./db')
 
-var collectionRest = module.exports = {
+let collectionRest = module.exports = {
     
     getObjects: function(_id, collection, aggregation, nextTick) {
         if(_id) {
@@ -10,20 +10,34 @@ var collectionRest = module.exports = {
         collection.aggregate(aggregation, { collation: { "locale": common.config.collation, strength: 1 }}).toArray(nextTick)
     },
 
-    handle: function(env, collection, aggregation = [], inputTransformation = null, validateUpdate = null) {
+    handle: function(env, collection, aggregation = [], searchFields = [], inputTransformation = null, validateUpdate = null) {
+        
+        let _id = null
+        if((env.req.method == 'GET' || env.req.method == 'DELETE') && env.parsedUrl.query._id) {
+            try {
+                _id = db.ObjectId(env.parsedUrl.query._id)
+            } catch(ex) {
+                common.serveError(env.res, 400, ex.message)
+                return
+            }
+        }
+
         switch(env.req.method) {
 
             case 'GET':
-                var _id = null
-                if(env.parsedUrl.query._id) {
-                    // pobieranie pojedynczego obiektu w bazie
-                    try {
-                        _id = db.ObjectId(env.parsedUrl.query._id)
-                    } catch(ex) {
-                        common.serveError(env.res, 400, ex.message)
-                        return
+                // pobierz pojedynczy obiekt z bazy/pobierz wszystkie
+
+                // filtrowanie obiektów za pomocą env.parsedUrl.query.search
+                if(env.parsedUrl.query.search && searchFields.length > 0) {
+                    let searchFilter = { $or: [] }
+                    for(let i in searchFields) {
+                        let cond = {}
+                        cond[searchFields[i]] = { $regex: env.parsedUrl.query.search, $options: 'i' }
+                        searchFilter.$or.push(cond)
                     }
+                    aggregation.unshift({ $match: searchFilter })
                 }
+
                 collectionRest.getObjects(_id, collection, aggregation, function(err, docs) {
                     if(err) {
                         common.serveError(env.res, 400, err.message)
@@ -44,15 +58,8 @@ var collectionRest = module.exports = {
                 break
 
             case 'DELETE':
-                var _id = null
-                if(env.parsedUrl.query._id) {
-                    // kasowanie pojedynczego obiektu w bazie
-                    try {
-                        var _id = db.ObjectId(env.parsedUrl.query._id)
-                    } catch(ex) {
-                        common.serveError(env.res, 400, ex.message)
-                    }
-                }
+                // usuń pojedynczy obiekt w bazie/usuń wszystkie obiekty
+
                 collection.deleteMany(_id ? { _id: _id } : {}, function(err, result) {
                     if(err) {
                         common.serveError(env.res, 400, err.message)
@@ -101,11 +108,12 @@ var collectionRest = module.exports = {
 
             case 'PUT':
                 // zmodyfikuj element w bazie danych, którego _id jest równe payload._id
+
                 try {
                     if(inputTransformation) {
                         inputTransformation(env.parsedPayload)
                     }
-                    var _id = db.ObjectId(env.parsedPayload._id)
+                    let _id = db.ObjectId(env.parsedPayload._id)
                     if(!validateUpdate) validateUpdate = function(payload, nextTick) { nextTick(true) }
                     validateUpdate(env.parsedPayload, function(ok) {
                         if(!ok) {

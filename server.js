@@ -78,13 +78,9 @@ httpServer.on('request', function(req, res) {
 
                     dbrest.handle(env, db.persons, 
                         [ 
-                            { $sort: { lastName: 1, firstName: 1 }}
+                            { $sort: { lastName: 1, firstName: 1 } }
                         ],
-                        function(payload) {
-                            if(Array.isArray(payload.projects)) {
-                                payload.projects = payload.projects.map(function(el) { return db.ObjectId(el) })
-                            }
-                        }
+                        [ 'firstName', 'lastName', 'email' ]
                     )
                     return
 
