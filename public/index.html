@@ -14,6 +14,16 @@
     <body>
         <div class="container" ng-controller="Ctrl as ctrl">
 
+            <div style="float: right;">
+                <form class="form form-inline">
+                    <input class="form-control" type="text" ng-model="ctrl.search" placeholder="szukaj" ng-change="ctrl.pobierzWszystkie()"/>
+                    <input class="form-control" type="number" ng-model="ctrl.skip" placeholder="od" ng-change="ctrl.pobierzWszystkie()"/>
+                    <input class="form-control" type="number" ng-model="ctrl.limit" placeholder="limit" ng-change="ctrl.pobierzWszystkie()"/>
+                </form>
+            </div>
+
+            <br/><br/>
+
             <table class="table table-hover">
                 <tr>
                     <th>Imię</th><th>Nazwisko</th><th>e-mail</th><th>Akcja</th>
@@ -54,6 +64,10 @@
                     </td>
                 </tr>
             </table>
+
+            <button class="btn btn-sm btn-default fa fa-angle-down" ng-click="ctrl.doczytaj()"></button>
+            <button class="btn btn-sm btn-default fa fa-angle-left" ng-click="ctrl.poprzedniaPorcja()"></button>
+            <button class="btn btn-sm btn-default fa fa-angle-right" ng-click="ctrl.nastepnaPorcja()"></button>
 
         </div>
         <script src="node_modules/angular/angular.min.js"></script>

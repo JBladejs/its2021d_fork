@@ -14,15 +14,15 @@ Zadania dla studentów po kursie Programowanie Aplikacji Internetowych
 
 # REST API
 
-GET /collection                             wszystkie elementy z kolekcji
+GET /collection                                         wszystkie elementy z kolekcji
 
-GET /collection?_id=ident                   element o identyfikatorze ident
+GET /collection?_id=ident                               element o identyfikatorze ident
 
-POST /collection            { values... }   dodanie nowego obiektu do kolekcji
+POST /collection            { values... }               dodanie nowego obiektu do kolekcji
 
-PUT /collection             { _id:"ident", values...}   aktualizacja istniejącego obiektu
+PUT /collection             { "_id":"ident", values...} aktualizacja istniejącego obiektu
 
-DELETE /collection                          usunięcie wszystkich elementów z kolekcji
+DELETE /collection                                      usunięcie wszystkich elementów z kolekcji
 
-DELETE /collection?_id=ident                usunięcie elementu o identyfikatorze ident
+DELETE /collection?_id=ident                            usunięcie elementu o identyfikatorze ident
 

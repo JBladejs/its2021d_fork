@@ -3,15 +3,25 @@ let db = require('./db')
 
 let dbrest = module.exports = {
     
-    getObjects: function(_id, collection, aggregation, nextTick) {
-        if(_id) {
-            aggregation.unshift({ $match: { _id: _id } })
-        }
-        collection.aggregate(aggregation, { collation: { "locale": common.config.collation, strength: 1 }}).toArray(nextTick)
+    getOneObject: function(collection, query, _id, nextTick) {
+        let localQuery = []
+        for(let i in query) localQuery.push(query[i])
+        localQuery.unshift({ $match: { _id: _id } })
+        collection.aggregate(localQuery, { collation: { "locale": common.config.collation, strength: 1 }}).next(nextTick)
     },
 
-    handle: function(env, collection, aggregation = [], searchFields = [], inputTransformation = null, validateUpdate = null) {
-        
+    getObjects: function(collection, facet, nextTick) {
+        collection.aggregate(facet, { collation: { "locale": common.config.collation, strength: 1 }}).next(nextTick)
+    },
+
+    handle: function(env, collection, specificity = { 
+            aggregation: [],                                                // agregacja, np. łączenie z innymi kolekcjami
+            order: {},                                                      // porządek sortowania
+            searchFields: [],                                               // pola przeszukiwane przez search
+            inputTransformation: function(payload) { return payload },      // przekształcenie payloadu przed insert/update (synchroniczne)
+            validateUpdate: function(payload, nextTick) { nextTick(true) }  // sprawdzenie czy insert/update jest możliwy (asynchroniczne) 
+        }) {
+
         let _id = null
         if((env.req.method == 'GET' || env.req.method == 'DELETE') && env.parsedUrl.query._id) {
             try {
@@ -25,47 +35,83 @@ let dbrest = module.exports = {
         switch(env.req.method) {
 
             case 'GET':
-                // pobierz pojedynczy obiekt z bazy/pobierz wszystkie
-
-                // filtrowanie obiektów za pomocą env.parsedUrl.query.search
-                if(env.parsedUrl.query.search && searchFields.length > 0) {
-                    let searchFilter = { $or: [] }
-                    for(let i in searchFields) {
-                        let cond = {}
-                        cond[searchFields[i]] = { $regex: env.parsedUrl.query.search, $options: 'i' }
-                        searchFilter.$or.push(cond)
-                    }
-                    aggregation.unshift({ $match: searchFilter })
-                }
-
-                dbrest.getObjects(_id, collection, aggregation, function(err, docs) {
-                    if(err) {
-                        common.serveError(env.res, 400, err.message)
-                    } else {
-                        if(_id) {
-                            // pojedynczy obiekt
-                            if(docs.length > 0) {
-                                common.serveJson(env.res, 200, docs[0])
-                            } else {
-                                common.serveError(env.res, 404, 'Object not found')
-                            }
-                        } else {
-                            // wszystkie
-                            common.serveJson(env.res, 200, docs)
+                if(_id) {
+                    // pobierz pojedynczy obiekt z bazy
+                    dbrest.getOneObject(collection, specificity.aggregation, _id, function(err, doc) {
+                        if(err)
+                            common.serveError(env.res, 400, err.message)
+                        else if(!doc)
+                            common.serveError(env.res, 404, 'Object not found')
+                        else
+                            common.serveJson(env.res, 200, doc)
+                    })
+                } else {
+                    // pobierz zbiór obiektów
+                    let searchFilter = null
+                    if(env.parsedUrl.query.search && specificity.searchFields && specificity.searchFields.length > 0) {
+                        searchFilter = { $or: [] }
+                        for(let i in specificity.searchFields) {
+                            let cond = {}
+                            cond[specificity.searchFields[i]] = { $regex: env.parsedUrl.query.search, $options: 'i' }
+                            searchFilter.$or.push(cond)
                         }
                     }
-                })
+
+                    let filtered = [], data = []
+                    for(let i in specificity.aggregation) {
+                        filtered.push(specificity.aggregation[i])       
+                    }
+
+                    if(searchFilter) {
+                        filtered.push({ $match: searchFilter })
+                        data.push({ $match: searchFilter })
+                    }
+
+                    filtered.push({ $count: 'count' })
+
+                    // sort
+                    if(specificity.order) {
+                        data.push({ $sort: specificity.order })
+                    }
+
+                    // skip
+                    let skip = parseInt(env.parsedUrl.query.skip)
+                    if( !isNaN(skip) && skip > 0) {
+                        data.push({ $skip: skip })
+                    } 
+                    // limit
+                    let limit = parseInt(env.parsedUrl.query.limit)
+                    if( !isNaN(limit) && limit > 0) {
+                        data.push({ $limit: limit })
+                    }
+
+                    let facet = [ { $facet: {
+                        total: [
+                            { $count: 'count' }
+                        ],
+                        filtered: filtered,
+                        data: data
+                    }}]
+
+                    dbrest.getObjects(collection, facet, function(err, doc) {
+                        if(err) 
+                            common.serveError(env.res, 400, err.message)
+                        else if(!doc)
+                            common.serveError(env.res, 404, 'No objects found')
+                        else
+                            common.serveJson(env.res, 200, doc)
+                    })                    
+                }
                 break
 
             case 'DELETE':
                 // usuń pojedynczy obiekt w bazie/usuń wszystkie obiekty
 
                 collection.deleteMany(_id ? { _id: _id } : {}, function(err, result) {
-                    if(err) {
+                    if(err) 
                         common.serveError(env.res, 400, err.message)
-                    } else {
+                    else
                         common.serveJson(env.res, 200, { deletedCount: result.deletedCount })
-                    }
                 })
                 break
 
@@ -76,14 +122,15 @@ let dbrest = module.exports = {
                     common.serveError(env.res, 400, 'No _id allowed')
                     return
                 }
-                if(inputTransformation) {
+                if(specificity.inputTransformation) {
                     try {
-                        inputTransformation(env.parsedPayload)
+                        specificity.inputTransformation(env.parsedPayload)
                     } catch(ex) { 
                         common.serveError(env.res, 400, ex.message)
                         return
                     }
                 }
+                let validateUpdate = specificity.validateUpdate
                 if(!validateUpdate) validateUpdate = function(payload, nextTick) { nextTick(true) }
                 validateUpdate(env.parsedPayload, function(ok) { 
                     if(!ok) {
@@ -94,16 +141,13 @@ let dbrest = module.exports = {
                         if(err || !result.ops || !result.ops[0]) {
                             common.serveError(env.res, 400, err ? err.message : 'Error during insertOne')
                         } else {
-                            dbrest.getObjects(result.ops[0]._id, collection, aggregation, function(err, docs) {
-                                if(err) {
+                            dbrest.getOneObject(collection, specificity.aggregation, result.ops[0]._id, function(err, doc) {
+                                if(err)
                                     common.serveError(env.res, 400, err.message)
-                                } else {
-                                    if(docs.length > 0) {
-                                        common.serveJson(env.res, 200, docs[0])
-                                    } else {
-                                        common.serveError(env.res, 404, 'Object not found')
-                                    }
-                                }
+                                else if(!doc)
+                                    common.serveError(env.res, 404, 'Object not found')
+                                else
+                                    common.serveJson(env.res, 200, doc)
                             })
                         }
                     })
@@ -114,10 +158,11 @@ let dbrest = module.exports = {
                 // zmodyfikuj element w bazie danych, którego _id jest równe payload._id
 
                 try {
-                    if(inputTransformation) {
-                        inputTransformation(env.parsedPayload)
+                    if(specificity.inputTransformation) {
+                        specificity.inputTransformation(env.parsedPayload)
                     }
                     let _id = db.ObjectId(env.parsedPayload._id)
+                    let validateUpdate = specificity.validateUpdate
                     if(!validateUpdate) validateUpdate = function(payload, nextTick) { nextTick(true) }
                     validateUpdate(env.parsedPayload, function(ok) {
                         if(!ok) {
@@ -126,19 +171,16 @@ let dbrest = module.exports = {
                         }
                         delete env.parsedPayload._id
                         collection.findOneAndUpdate({ _id: _id }, { $set: env.parsedPayload }, {}, function(err, result) {
-                            if(err) {
+                            if(err) 
                                 common.serveError(env.res, 400, err.message)
-                            } else {
-                                dbrest.getObjects(_id, collection, aggregation, function(err, docs) {
-                                    if(err) {
-                                        common.serveError(env.res, 400, err.message)
-                                    } else {
-                                        if(docs.length > 0) {
-                                            common.serveJson(env.res, 200, docs[0])
-                                        } else {
-                                            common.serveError(env.res, 404, 'Object not found')
-                                        }
-                                    }
+                            else {
+                                dbrest.getOneObject(collection, specificity.aggregation, _id, function(err, doc) {
+                                    if(err)
+                                       common.serveError(env.res, 400, err.message)
+                                    else if(!doc)
+                                        common.serveError(env.res, 404, 'Object not found')
+                                    else
+                                        common.serveJson(env.res, 200, doc)
                                 })
                             }
                         })

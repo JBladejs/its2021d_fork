@@ -4,6 +4,9 @@ app.controller('Ctrl', [ '$http', function($http) {
     let ctrl = this
     console.log('Kontroler wystartował')
 
+    ctrl.search = ''
+    ctrl.skip = 0
+    ctrl.limit = 3
     ctrl.selected = -1
 
     ctrl.newPerson = { firstName: '', lastName: '', email: '' }
@@ -12,9 +15,9 @@ app.controller('Ctrl', [ '$http', function($http) {
     ctrl.persons = []
 
     ctrl.pobierzWszystkie = function() {
-        $http.get('/person').then(
+        $http.get('/person?search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
             function(res) {
-                ctrl.persons = res.data
+                ctrl.persons = res.data.data
             },
             function(err) {}
         )
@@ -74,4 +77,19 @@ app.controller('Ctrl', [ '$http', function($http) {
     }
 
     ctrl.pobierzWszystkie()
+
+    ctrl.doczytaj = function() {
+        ctrl.limit += 3
+        ctrl.pobierzWszystkie()
+    }
+
+    ctrl.poprzedniaPorcja = function() {
+        ctrl.skip -= ctrl.limit
+        ctrl.pobierzWszystkie()
+    }
+
+    ctrl.nastepnaPorcja = function() {
+        ctrl.skip += ctrl.limit
+        ctrl.pobierzWszystkie()
+    }
 }])

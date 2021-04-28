@@ -76,24 +76,13 @@ httpServer.on('request', function(req, res) {
                 // endpoint do kolekcji persons
                 case '/person':
 
-                    dbrest.handle(env, db.persons, 
-                        [ 
-                            { $sort: { lastName: 1, firstName: 1 } }
-                        ],
-                        [ 'firstName', 'lastName', 'email' ]
-                    )
+                    dbrest.handle(env, db.persons, { order: { lastName: 1, firstName: 1 }, searchFields: [ 'firstName', 'lastName', 'email' ] })
                     return
-
 
                 // endpoint do kolekcji projects
                 case '/project':
 
-                    dbrest.handle(env, db.projects, 
-                        [ 
-                            { $sort: { shortName: 1 } }
-                        ],
-                        [ 'shortName', 'name' ]
-                    )
+                    dbrest.handle(env, db.projects, { order: { shortName: 1 }, searchFields: [ 'shortName', 'name' ] })
                     return
 
                 // serwowanie statycznej treści
