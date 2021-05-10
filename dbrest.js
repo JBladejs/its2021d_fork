@@ -90,7 +90,7 @@ let dbrest = module.exports = {
                             { $count: 'count' }
                         ],
                         filtered: filtered,
-                        data: data
+                        records: data
                     }}]
 
                     dbrest.getObjects(collection, facet, function(err, doc) {
@@ -98,8 +98,11 @@ let dbrest = module.exports = {
                             common.serveError(env.res, 400, err.message)
                         else if(!doc)
                             common.serveError(env.res, 404, 'No objects found')
-                        else
+                        else {
+                            doc.total = (Array.isArray(doc.total) && doc.total.length > 0 && doc.total[0].count ) ? doc.total[0].count : 0
+                            doc.filtered = (Array.isArray(doc.filtered) && doc.filtered.length > 0 && doc.filtered[0].count ) ? doc.filtered[0].count : 0
                             common.serveJson(env.res, 200, doc)
+                        }
                     })                    
                 }
                 break

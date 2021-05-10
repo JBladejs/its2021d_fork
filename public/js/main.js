@@ -4,23 +4,28 @@ app.controller('Ctrl', [ '$http', function($http) {
     let ctrl = this
     console.log('Kontroler wystartował')
 
+    // filtry
     ctrl.search = ''
+    ctrl.data = { total: 0, filtered: 0, records: [] }
     ctrl.skip = 0
     ctrl.limit = 3
-    ctrl.selected = -1
 
     ctrl.newPerson = { firstName: '', lastName: '', email: '' }
     ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '' }
 
-    ctrl.persons = []
-
     ctrl.pobierzWszystkie = function() {
         $http.get('/person?search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
             function(res) {
-                ctrl.persons = res.data.data
+                ctrl.data = res.data
+                ctrl.editedPerson.index = -1
             },
             function(err) {}
         )
+    }
+
+    ctrl.pobierzWszystkieOdZera = function() {
+        ctrl.skip = 0
+        ctrl.pobierzWszystkie()
     }
 
     ctrl.wyslij = function() {
@@ -29,7 +34,6 @@ app.controller('Ctrl', [ '$http', function($http) {
                 ctrl.newPerson.firstName = ''
                 ctrl.newPerson.lastName = ''
                 ctrl.newPerson.email = ''
-                ctrl.editedPerson.index = -1
                 ctrl.pobierzWszystkie()
             },
             function(err) {}
@@ -39,14 +43,14 @@ app.controller('Ctrl', [ '$http', function($http) {
     ctrl.zeruj = function() {
         $http.delete('/person').then(
             function(res) {
-                ctrl.persons = res.data
+                ctrl.pobierzWszystkieOdZera()
             },
             function(err) {}
         )
     }
 
     ctrl.wybierz = function(index) {
-        $http.get('/person?_id=' + ctrl.persons[index]._id).then(
+        $http.get('/person?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
                 ctrl.editedPerson = res.data
                 ctrl.editedPerson.index = index
@@ -59,7 +63,6 @@ app.controller('Ctrl', [ '$http', function($http) {
         delete ctrl.editedPerson.index
         $http.put('/person', ctrl.editedPerson).then(
             function(res) {
-                ctrl.editedPerson.index = -1
                 ctrl.pobierzWszystkie()
             },
             function(err) {}
@@ -67,10 +70,12 @@ app.controller('Ctrl', [ '$http', function($http) {
     }
 
     ctrl.usun = function(index) {
-        $http.delete('/person?_id=' + ctrl.persons[index]._id).then(
+        $http.delete('/person?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
-                ctrl.editedPerson.index = -1
-                ctrl.pobierzWszystkie()
+                if(ctrl.skip + 1 >= ctrl.data.filtered)
+                    ctrl.poprzedniaPorcja()
+                else 
+                    ctrl.pobierzWszystkie()
             },
             function(err) {}
         )
@@ -85,6 +90,7 @@ app.controller('Ctrl', [ '$http', function($http) {
 
     ctrl.poprzedniaPorcja = function() {
         ctrl.skip -= ctrl.limit
+        if(ctrl.skip < 0) ctrl.skip = 0
         ctrl.pobierzWszystkie()
     }
 
