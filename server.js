@@ -75,8 +75,13 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji persons
                 case '/person':
-
-                    dbrest.handle(env, db.persons, { order: { lastName: 1, firstName: 1 }, searchFields: [ 'firstName', 'lastName', 'email' ] })
+                    let params = { searchFields: [ 'firstName', 'lastName', 'email' ] }
+                    if(env.parsedUrl.query.sort) {
+                        let sort = {}
+                        sort[env.parsedUrl.query.sort] = 1
+                        params.order = sort
+                    }
+                    dbrest.handle(env, db.persons, params)
                     return
 
                 // endpoint do kolekcji projects
