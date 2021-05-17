@@ -1,4 +1,20 @@
-let app = angular.module('its2021d', [])
+let app = angular.module('its2021d', [ 'ngRoute' ])
+
+// router menu
+app.constant('routes', [
+	{ route: '/0', templateUrl: '0.html', controller: 'Ctrl0', controllerAs: 'ctrl' },
+	{ route: '/1', templateUrl: '1.html', controller: 'Ctrl1', controllerAs: 'ctrl' },
+	{ route: '/2', templateUrl: '2.html', controller: 'Ctrl2', controllerAs: 'ctrl' }
+])
+
+// router installation
+app.config(['$routeProvider', '$locationProvider', 'routes', function($routeProvider, $locationProvider, routes) {
+    $locationProvider.hashPrefix('')
+	for(var i in routes) {
+		$routeProvider.when(routes[i].route, routes[i])
+	}
+	$routeProvider.otherwise({ redirectTo: '/0' })
+}])
 
 app.controller('Ctrl', [ '$http', function($http) {
     let ctrl = this
@@ -134,4 +150,16 @@ app.controller('Ctrl', [ '$http', function($http) {
         ctrl.sort = field
         ctrl.pobierzWszystkieOdZera()
     }
+}])
+
+app.controller('Ctrl0', [ function($http) {
+
+}])
+
+app.controller('Ctrl1', [ function($http) {
+
+}])
+
+app.controller('Ctrl2', [ function($http) {
+
 }])

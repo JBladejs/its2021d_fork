@@ -83,8 +83,19 @@
             <button class="btn btn-sm btn-default fa fa-angle-left" ng-click="ctrl.poprzedniaPorcja()" ng-disabled="ctrl.skip <= 0"></button>
             <button class="btn btn-sm btn-default fa fa-angle-right" ng-click="ctrl.nastepnaPorcja()" ng-disabled="ctrl.skip + ctrl.limit >= ctrl.data.filtered"></button>
 
+            <hr/>
+
+            <a href="#/0">--0--</a>
+            <a href="#/1">--1--</a>
+            <a href="#/2">--2--</a>
+
+            <hr/>
+
+            <div ng-view></div>
+
         </div>
         <script src="node_modules/angular/angular.min.js"></script>
+        <script src="node_modules/angular-route/angular-route.min.js"></script>
         <script src="node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
 
         <script src="js/main.js"></script>
