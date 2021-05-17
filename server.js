@@ -71,23 +71,30 @@ httpServer.on('request', function(req, res) {
             }
 
             // właściwa obsługa żądania
+            let params = {}
+
+            let addSortToParams = function() {
+                if(env.parsedUrl.query.sort) {
+                    let sort = {}
+                    sort[env.parsedUrl.query.sort] = 1
+                    params.order = sort
+                }
+            }
+
             switch(env.parsedUrl.pathname) {
 
                 // endpoint do kolekcji persons
                 case '/person':
-                    let params = { searchFields: [ 'firstName', 'lastName', 'email' ] }
-                    if(env.parsedUrl.query.sort) {
-                        let sort = {}
-                        sort[env.parsedUrl.query.sort] = 1
-                        params.order = sort
-                    }
+                    params = { searchFields: [ 'firstName', 'lastName', 'email' ] }
+                    addSortToParams()
                     dbrest.handle(env, db.persons, params)
                     return
 
                 // endpoint do kolekcji projects
                 case '/project':
-
-                    dbrest.handle(env, db.projects, { order: { shortName: 1 }, searchFields: [ 'shortName', 'name' ] })
+                    params = { searchFields: [ 'shortName', 'name' ] }
+                    addSortToParams()
+                    dbrest.handle(env, db.projects, params)
                     return
 
                 // serwowanie statycznej treści

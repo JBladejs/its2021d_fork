@@ -1,6 +1,6 @@
-app.controller('Persons', [ '$http', function($http) {
+app.controller('Projects', [ '$http', function($http) {
     let ctrl = this
-    console.log('Kontroler Persons wystartował')
+    console.log('Kontroler Projects wystartował')
 
     // filtry
     ctrl.search = ''
@@ -14,14 +14,14 @@ app.controller('Persons', [ '$http', function($http) {
 
     ctrl.selected = -1
     ctrl.lastChanged = null
-    ctrl.newPerson = { shortName: '', lastName: '', email: '' }
-    ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '' }
+    ctrl.newProject = { shortName: '', name: '' }
+    ctrl.editedProject = { index: -1, shortName: '', name: '' }
 
     ctrl.pobierzWszystkie = function() {
-        $http.get('/person?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
+        $http.get('/project?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
             function(res) {
                 ctrl.data = res.data
-                ctrl.editedPerson.index = -1
+                ctrl.editedProject.index = -1
             },
             function(err) {}
         )
@@ -33,12 +33,12 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.wyslij = function() {
-        $http.post('/person', ctrl.newPerson).then(
+        $http.post('/project', ctrl.newProject).then(
             function(res) {
                 setLastChanged(res.data._id, function() {
-                    ctrl.newPerson.firstName = ''
-                    ctrl.newPerson.lastName = ''
-                    ctrl.newPerson.email = ''
+                    ctrl.newProject.firstName = ''
+                    ctrl.newProject.lastName = ''
+                    ctrl.newProject.email = ''
                     ctrl.pobierzWszystkie()    
                 })
             },
@@ -47,7 +47,7 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.zeruj = function() {
-        $http.delete('/person').then(
+        $http.delete('/project').then(
             function(res) {
                 ctrl.lastChanged = null
                 ctrl.pobierzWszystkieOdZera()
@@ -57,10 +57,10 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.wybierz = function(index) {
-        $http.get('/person?_id=' + ctrl.data.records[index]._id).then(
+        $http.get('/project?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
-                ctrl.editedPerson = res.data
-                ctrl.editedPerson.index = index
+                ctrl.editedProject = res.data
+                ctrl.editedProject.index = index
                 ctrl.lastChanged = null
             },
             function(err) {}
@@ -68,10 +68,10 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.zapisz = function() {
-        delete ctrl.editedPerson.index
-        $http.put('/person', ctrl.editedPerson).then(
+        delete ctrl.editedProject.index
+        $http.put('/project', ctrl.editedProject).then(
             function(res) {
-                setLastChanged(ctrl.editedPerson._id, function() {
+                setLastChanged(ctrl.editedProject._id, function() {
                     ctrl.pobierzWszystkie()
                 })
             },
@@ -80,7 +80,7 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.usun = function(index) {
-        $http.delete('/person?_id=' + ctrl.data.records[index]._id).then(
+        $http.delete('/project?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
                 ctrl.lastChanged = null
                 if(ctrl.skip + 1 >= ctrl.data.filtered)
@@ -111,7 +111,7 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     var setLastChanged = function(_id, nextTick) {
-        $http.get('/person?search=' + ctrl.search).then(
+        $http.get('/project?search=' + ctrl.search).then(
             function(res) {
                 let index = res.data.records.findIndex(function(el) { return el._id == _id } )
                 if(index < 0) {
