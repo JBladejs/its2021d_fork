@@ -1,0 +1,68 @@
+<div>
+    <span>
+        <span class="label label-primary" ng-bind="ctrl.data.total"></span>
+        <span class="label label-success" ng-bind="ctrl.data.filtered"></span>
+        <span class="label label-default" ng-bind="ctrl.data.records.length"></span>
+    </span>
+    <span style="float: right;">
+        <form class="form form-inline">
+            <span class="fa fa-search"></span>
+            <input class="form-control" type="text" ng-model="ctrl.search" placeholder="szukaj" ng-change="ctrl.pobierzWszystkieOdZera()"/>
+        </form>
+    </span>
+</div>
+
+<br/><br/>
+
+<table class="table table-stripped">
+    <tr>
+        <th>
+            <span ng-click="ctrl.resort('firstName')">Imię</span>
+        </th><th>
+            <span ng-click="ctrl.resort('lastName')">Nazwisko</span>
+        </th><th>
+            <span ng-click="ctrl.resort('email')">e-mail</span>
+        </th><th>
+            Akcja
+        </th>
+    </tr>
+    <tr ng-repeat="person in ctrl.data.records" ng-mouseover="ctrl.selected = $index" ng-mouseleave="ctrl.selected = -1" ng-class="{ rowSelected: ctrl.lastChanged == person._id }">
+        <td>
+            <span ng-bind="person.firstName" ng-if="ctrl.editedPerson.index != $index"></span>
+            <input class="form-control" ng-model="ctrl.editedPerson.firstName" ng-if="ctrl.editedPerson.index == $index"/>
+        </td>
+        <td>
+            <span ng-bind="person.lastName" ng-if="ctrl.editedPerson.index != $index"></span>
+            <input class="form-control" ng-model="ctrl.editedPerson.lastName" ng-if="ctrl.editedPerson.index == $index"/>
+        </td>
+        <td>
+            <span ng-bind="person.email" ng-if="ctrl.editedPerson.index != $index"></span>
+            <input class="form-control" ng-model="ctrl.editedPerson.email" ng-if="ctrl.editedPerson.index == $index"/>
+        </td>
+        <td nowrap>
+            <button class="btn btn-sm btn-default fa fa-edit" ng-click="ctrl.wybierz($index)" ng-if="ctrl.selected == $index && ctrl.editedPerson.index != $index"></button>
+            <button class="btn btn-sm btn-default fa fa-check" ng-click="ctrl.zapisz()" ng-if="ctrl.editedPerson.index == $index" ng-disabled="!ctrl.editedPerson.firstName || !ctrl.editedPerson.lastName"></button>
+            <button class="btn btn-sm btn-default fa fa-times" ng-click="ctrl.editedPerson = -1" ng-if="ctrl.editedPerson.index == $index"></button>
+            <button class="btn btn-sm btn-default fa fa-trash" ng-click="ctrl.usun($index)" ng-if="ctrl.editedPerson.index == $index"></button>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <input type="text" class="form-control" ng-model="ctrl.newPerson.firstName" placeholder="imię"/>
+        </td>
+        <td>
+            <input type="text" class="form-control" ng-model="ctrl.newPerson.lastName" placeholder="nazwisko"/>
+        </td>
+        <td>
+            <input type="text" class="form-control" ng-model="ctrl.newPerson.email" placeholder="e-mail"/>
+        </td>
+        <td nowrap>
+            <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newPerson.firstName || !ctrl.newPerson.lastName"></button>
+            <button class="btn btn-sm btn-danger fa fa-trash" ng-click="ctrl.zeruj()"></button>
+        </td>
+    </tr>
+</table>
+
+<button class="btn btn-sm btn-default fa fa-angle-down" ng-click="ctrl.doczytaj()" ng-disabled="ctrl.skip + ctrl.data.records.length >= ctrl.data.filtered"></button>
+<button class="btn btn-sm btn-default fa fa-angle-left" ng-click="ctrl.poprzedniaPorcja()" ng-disabled="ctrl.skip <= 0"></button>
+<button class="btn btn-sm btn-default fa fa-angle-right" ng-click="ctrl.nastepnaPorcja()" ng-disabled="ctrl.skip + ctrl.limit >= ctrl.data.filtered"></button>
