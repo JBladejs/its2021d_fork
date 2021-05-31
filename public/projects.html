@@ -21,6 +21,9 @@
         </th><th>
             <span ng-click="ctrl.resort('name')">Nazwa</span>
         </th>
+        <th>
+            Akcja
+        </th>
     </tr>
     <tr ng-repeat="project in ctrl.data.records" ng-mouseover="ctrl.selected = $index" ng-mouseleave="ctrl.selected = -1" ng-class="{ rowSelected: ctrl.lastChanged == project._id }">
         <td>

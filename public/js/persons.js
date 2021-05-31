@@ -1,4 +1,4 @@
-app.controller('Persons', [ '$http', function($http) {
+app.controller('Persons', [ '$http', 'common', function($http, common) {
     let ctrl = this
     console.log('Kontroler Persons wystartował')
 
@@ -39,7 +39,8 @@ app.controller('Persons', [ '$http', function($http) {
                     ctrl.newPerson.firstName = ''
                     ctrl.newPerson.lastName = ''
                     ctrl.newPerson.email = ''
-                    ctrl.pobierzWszystkie()    
+                    ctrl.pobierzWszystkie()
+                    common.showAlert('success', 'Utworzono osobę ' + res.data.firstName + ' ' + res.data.lastName)    
                 })
             },
             function(err) {}
@@ -51,6 +52,7 @@ app.controller('Persons', [ '$http', function($http) {
             function(res) {
                 ctrl.lastChanged = null
                 ctrl.pobierzWszystkieOdZera()
+                common.showAlert('success', 'Usunięto wszystkie osoby')
             },
             function(err) {}
         )
@@ -73,6 +75,7 @@ app.controller('Persons', [ '$http', function($http) {
             function(res) {
                 setLastChanged(ctrl.editedPerson._id, function() {
                     ctrl.pobierzWszystkie()
+                    common.showAlert('success', 'Zmodyfikowano osobę ' + res.data.firstName + ' ' + res.data.lastName)
                 })
             },
             function(err) {}
@@ -80,6 +83,7 @@ app.controller('Persons', [ '$http', function($http) {
     }
 
     ctrl.usun = function(index) {
+        let to_del = ctrl.data.records[index].firstName + ' ' + ctrl.data.records[index].lastName
         $http.delete('/person?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
                 ctrl.lastChanged = null
@@ -87,6 +91,7 @@ app.controller('Persons', [ '$http', function($http) {
                     ctrl.poprzedniaPorcja()
                 else 
                     ctrl.pobierzWszystkie()
+                common.showAlert('success', 'Usunięto osobę ' + to_del)
             },
             function(err) {}
         )

@@ -1,4 +1,4 @@
-app.controller('Projects', [ '$http', function($http) {
+app.controller('Projects', [ '$http', 'common',  function($http, common) {
     let ctrl = this
     console.log('Kontroler Projects wystartował')
 
@@ -36,10 +36,10 @@ app.controller('Projects', [ '$http', function($http) {
         $http.post('/project', ctrl.newProject).then(
             function(res) {
                 setLastChanged(res.data._id, function() {
-                    ctrl.newProject.firstName = ''
-                    ctrl.newProject.lastName = ''
-                    ctrl.newProject.email = ''
-                    ctrl.pobierzWszystkie()    
+                    ctrl.newProject.shortName = ''
+                    ctrl.newProject.name = ''
+                    ctrl.pobierzWszystkie()
+                    common.showAlert('success', 'Utworzono projekt ' + res.data.shortName)
                 })
             },
             function(err) {}
@@ -51,6 +51,7 @@ app.controller('Projects', [ '$http', function($http) {
             function(res) {
                 ctrl.lastChanged = null
                 ctrl.pobierzWszystkieOdZera()
+                common.showAlert('success', 'Usunięto wszystkie projekty')
             },
             function(err) {}
         )
@@ -72,6 +73,7 @@ app.controller('Projects', [ '$http', function($http) {
         $http.put('/project', ctrl.editedProject).then(
             function(res) {
                 setLastChanged(ctrl.editedProject._id, function() {
+                    common.showAlert('success', 'Zmodyfikowano projekt ' + res.data.shortName)
                     ctrl.pobierzWszystkie()
                 })
             },
@@ -80,6 +82,7 @@ app.controller('Projects', [ '$http', function($http) {
     }
 
     ctrl.usun = function(index) {
+        let to_del = ctrl.data.records[index].shortName
         $http.delete('/project?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
                 ctrl.lastChanged = null
@@ -87,6 +90,7 @@ app.controller('Projects', [ '$http', function($http) {
                     ctrl.poprzedniaPorcja()
                 else 
                     ctrl.pobierzWszystkie()
+                common.showAlert('success', 'Usunięto projekt ' + to_del)
             },
             function(err) {}
         )
