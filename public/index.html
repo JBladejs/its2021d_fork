@@ -41,7 +41,7 @@
                         </ul>
     
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a ng-bind-html="ctrl.loginIcon()" ng-click="ctrl.login()"></a></li>
+                            <li><a ng-bind-html="ctrl.session.login ? ctrl.session.login : '<i>niezalogowany</i>'" ng-click="ctrl.doLogin()"></a></li>
                         </ul>
     
                     </div>

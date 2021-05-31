@@ -21,6 +21,8 @@ app.service('common', [ '$uibModal', function($uibModal) {
 	let common = this
 	console.log('Usługa common wystartowała')
 
+	common.session = { login: '' }
+
 	common.alert = { type: 'alert-default', text: '' }
 	common.closeAlert = function() {
 		common.alert.text = ''
@@ -55,6 +57,7 @@ app.service('common', [ '$uibModal', function($uibModal) {
 	common.confirm = function(options, nextTick) {
 		common.dialog('confirmation.html', 'Confirmation', options, nextTick)
 	}
+
 }])
 
 app.controller('Confirmation', [ '$uibModalInstance', 'options', function($uibModalInstance, options) {
@@ -71,6 +74,28 @@ app.controller('Confirmation', [ '$uibModalInstance', 'options', function($uibMo
 	}
 }])
 
+app.controller('LoginForm', [ '$uibModalInstance', 'options', 'common', function($uibModalInstance, options, common) {
+    let ctrl = this
+	ctrl.options = options
+    console.log('Kontroler LoginForm wystartował')
+
+	ctrl.error = ''
+
+	ctrl.ok = function() {
+		// sprawdź kredencjały
+		if(ctrl.options.login && (ctrl.options.login == ctrl.options.password)) {
+			common.session.login = ctrl.options.login
+			$uibModalInstance.close()
+		} else {
+			ctrl.error = 'Logowanie nieudane'
+		}
+	}
+
+	ctrl.cancel = function() { 
+		$uibModalInstance.dismiss('cancel')
+	}
+}])
+
 // kontroler całej strony
 app.controller('Index', [ '$location', '$scope', 'routes', 'common', function($location, $scope, routes, common) {
     let ctrl = this
@@ -80,7 +105,21 @@ app.controller('Index', [ '$location', '$scope', 'routes', 'common', function($l
 	ctrl.closeAlert = common.closeAlert
 	ctrl.menu = []
 
-    ctrl.rebuildMenu = function() {
+	ctrl.session = common.session
+
+	ctrl.doLogin = function() {
+		if(!common.session.login) {
+			let options = { login: common.session.login }
+			common.dialog('loginForm.html', 'LoginForm', options, function(res) {})
+		} else {
+			let options = { title: 'Wylogowywanie', body: 'Czy na pewno chcesz się wylogować?' }
+			common.confirm(options, function(res) {
+				if(res) common.session.login = ''
+			})
+		}
+	}
+	
+	ctrl.rebuildMenu = function() {
 		ctrl.menu.length = 0
 		for(var i in routes) {
 			ctrl.menu.push({ route: routes[i].route, title: routes[i].title })
