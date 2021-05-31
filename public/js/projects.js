@@ -47,14 +47,19 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
     }
 
     ctrl.zeruj = function() {
-        $http.delete('/project').then(
-            function(res) {
-                ctrl.lastChanged = null
-                ctrl.pobierzWszystkieOdZera()
-                common.showAlert('success', 'Usunięto wszystkie projekty')
-            },
-            function(err) {}
-        )
+        let options = { title: 'Uwaga', body: 'Czy na pewno chcesz usunąć wszystkie projekty?' }
+        common.confirm(options, function(res) {
+            if(res) {
+                $http.delete('/project').then(
+                    function(res) {
+                        ctrl.lastChanged = null
+                        ctrl.pobierzWszystkieOdZera()
+                        common.showAlert('success', 'Usunięto wszystkie projekty')
+                    },
+                    function(err) {}
+                )
+                }
+        })
     }
 
     ctrl.wybierz = function(index) {

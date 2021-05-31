@@ -17,7 +17,7 @@ app.config(['$routeProvider', '$locationProvider', 'routes', function($routeProv
 }])
 
 // usługa wspólna
-app.service('common', [ function() {
+app.service('common', [ '$uibModal', function($uibModal) {
 	let common = this
 	console.log('Usługa common wystartowała')
 
@@ -28,6 +28,46 @@ app.service('common', [ function() {
 	common.showAlert = function(type, text) {
 		common.alert.type = 'alert-' + type
 		common.alert.text = text
+	}
+
+	common.dialog = function(templateUrl, controllerName, options, nextTick) {
+
+        var modalInstance = $uibModal.open({
+            animation: true,
+            ariaLabelledBy: 'modal-title-top',
+            ariaDescribedBy: 'modal-body-top',
+            templateUrl: templateUrl,
+            controller: controllerName,
+            controllerAs: 'ctrl',
+            resolve: {
+                options: function () {
+                    return options
+                }
+            }
+        })
+
+        modalInstance.result.then(
+            function() { nextTick(true) },
+            function(ret) { nextTick(false, ret) }
+        )
+    }
+
+	common.confirm = function(options, nextTick) {
+		common.dialog('confirmation.html', 'Confirmation', options, nextTick)
+	}
+}])
+
+app.controller('Confirmation', [ '$uibModalInstance', 'options', function($uibModalInstance, options) {
+    let ctrl = this
+	ctrl.options = options
+    console.log('Kontroler Confirmation wystartował')
+
+	ctrl.ok = function() {
+		$uibModalInstance.close()
+	}
+
+	ctrl.cancel = function() { 
+		$uibModalInstance.dismiss('cancel')
 	}
 }])
 

@@ -48,14 +48,19 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     }
 
     ctrl.zeruj = function() {
-        $http.delete('/person').then(
-            function(res) {
-                ctrl.lastChanged = null
-                ctrl.pobierzWszystkieOdZera()
-                common.showAlert('success', 'Usunięto wszystkie osoby')
-            },
-            function(err) {}
-        )
+        let options = { title: 'Uwaga', body: 'Czy na pewno chcesz usunąć wszystkie osoby?' }
+        common.confirm(options, function(res) {
+            if(res) {
+                $http.delete('/person').then(
+                    function(res) {
+                        ctrl.lastChanged = null
+                        ctrl.pobierzWszystkieOdZera()
+                        common.showAlert('success', 'Usunięto wszystkie osoby')
+                    },
+                    function(err) {}
+                )        
+            }
+        })
     }
 
     ctrl.wybierz = function(index) {
