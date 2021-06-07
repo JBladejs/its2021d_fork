@@ -96,10 +96,14 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji persons
                 case '/person':
+                    // tylko dla użytkowników roli 2
                     if(common.sessions[env.session].roles && common.sessions[env.session].roles.includes(2)) {
                         params = {
                             searchFields: [ 'firstName', 'lastName', 'email' ],
-                            aggregation: [ { $project: { password: false } } ]
+                            aggregation: [
+                                { $lookup: { from: 'projects', localField: 'projects', foreignField: '_id', as: 'projects' } },
+                                { $project: { password: false } }
+                            ]
                         }
                         addSortToParams()
                         dbrest.handle(env, db.persons, params)

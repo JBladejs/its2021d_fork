@@ -60,6 +60,7 @@ let dbrest = module.exports = {
                     let filtered = [], data = []
                     for(let i in specificity.aggregation) {
                         filtered.push(specificity.aggregation[i])       
+                        data.push(specificity.aggregation[i])       
                     }
 
                     if(searchFilter) {
