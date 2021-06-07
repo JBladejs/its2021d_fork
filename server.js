@@ -12,6 +12,7 @@ const uuid = require('uuid')
 const common = require('./common')
 const db = require('./db')
 const dbrest = require('./dbrest')
+const auth = require('./auth')
 
 // inicjalizacja globalnych obiektów
 common.config = JSON.parse(fs.readFileSync('config.json'))
@@ -70,6 +71,16 @@ httpServer.on('request', function(req, res) {
                 }
             }
 
+            // żądania autoryzacyjne
+            if(env.parsedUrl.pathname == '/auth') {
+                if(auth[req.method]) {
+                    auth[req.method](env)
+                } else {
+                    common.serverError(res, 405, 'Method not allowed')
+                }
+                return
+            }
+
             // właściwa obsługa żądania
             let params = {}
 
@@ -110,9 +121,10 @@ httpServer.on('request', function(req, res) {
 
 // uruchomienie serwera http
 try {
-    db.init(common.config.dbUrl, common.config.dbName)
-    httpServer.listen(common.config.port)
-    console.log('Serwer nasłuchuje na porcie', common.config.port)
+    db.init(common.config.dbUrl, common.config.dbName, function() {
+        httpServer.listen(common.config.port)
+        console.log('Serwer nasłuchuje na porcie', common.config.port)    
+    })
 } catch(ex) {
     console.error('Błąd inicjalizacji:', ex.message)
     process.exit(0)
