@@ -3,8 +3,8 @@ let app = angular.module('its2021d', [ 'ngRoute', 'ngSanitize', 'ngAnimate', 'ui
 // menu routera
 app.constant('routes', [
 	{ route: '/', templateUrl: 'home.html', controller: 'Home', controllerAs: 'ctrl', title: '<i class="fa fa-lg fa-home"></i>' },
-	{ route: '/persons', templateUrl: 'persons.html', controller: 'Persons', controllerAs: 'ctrl', title: 'Osoby' },
-	{ route: '/projects', templateUrl: 'projects.html', controller: 'Projects', controllerAs: 'ctrl', title: 'Projekty' }
+	{ route: '/persons', templateUrl: 'persons.html', controller: 'Persons', controllerAs: 'ctrl', title: 'Osoby', roles: [ 2 ] },
+	{ route: '/projects', templateUrl: 'projects.html', controller: 'Projects', controllerAs: 'ctrl', title: 'Projekty', roles: [ 1, 2 ] }
 ])
 
 // instalacja routera
@@ -17,15 +17,43 @@ app.config(['$routeProvider', '$locationProvider', 'routes', function($routeProv
 }])
 
 // usługa wspólna
-app.service('common', [ '$http', '$uibModal', function($http, $uibModal) {
+app.service('common', [ '$http', '$location', '$uibModal', 'routes', function($http, $location, $uibModal, routes) {
 	let common = this
 	console.log('Usługa common wystartowała')
 
 	common.session = { login: null }
-	$http.get('/auth').then(
-		function(res) { common.session.login = res.data.login },
-		function(err) {}
-	)
+	common.menu = []
+
+	common.whoami = function() {
+		$http.get('/auth').then(
+			function(res) {
+				common.session.login = res.data.login
+				common.session.roles = res.data.roles
+				common.rebuildMenu()
+			},
+			function(err) {}
+		)
+	}
+
+	common.rebuildMenu = function() {
+		common.menu.length = 0
+		for(var i in routes) {
+			// trasa nie ma przypisanych ról lub role trasy w przecięciu z rolami użytkownika dają zbiór niepusty
+			let intersection = []
+			if(!routes[i].roles) {
+				intersection = [ 0 ]
+			} else {
+				for(var j in common.session.roles) {
+					if(routes[i].roles.includes(common.session.roles[j])) intersection.push(common.session.roles[j])
+				}
+			}
+			if(intersection.length) {
+				common.menu.push({ route: routes[i].route, title: routes[i].title })
+			}
+		}
+		$location.path('/')
+    }
+
 	common.lastLogin = ''
 
 	common.alert = { type: 'alert-default', text: '' }
@@ -63,6 +91,8 @@ app.service('common', [ '$http', '$uibModal', function($http, $uibModal) {
 		common.dialog('confirmation.html', 'Confirmation', options, nextTick)
 	}
 
+	common.whoami()
+
 }])
 
 app.controller('Confirmation', [ '$uibModalInstance', 'options', function($uibModalInstance, options) {
@@ -91,9 +121,10 @@ app.controller('LoginForm', [ '$http', '$uibModalInstance', 'options', 'common',
 		if(ctrl.options.login) {
 			$http.post('/auth', ctrl.options).then(
 				function(res) {
-					common.session.login = res.data.login
+					common.whoami()
 					common.lastLogin = res.data.login
 					$uibModalInstance.close()		
+
 				},
 				function(err) {
 					ctrl.error = 'Logowanie nieudane'
@@ -114,9 +145,8 @@ app.controller('Index', [ '$http', '$location', '$scope', 'routes', 'common', fu
 	
 	ctrl.alert = common.alert
 	ctrl.closeAlert = common.closeAlert
-	ctrl.menu = []
-
 	ctrl.session = common.session
+	ctrl.menu = common.menu
 
 	ctrl.doLogin = function() {
 		if(!common.session.login) {
@@ -127,7 +157,9 @@ app.controller('Index', [ '$http', '$location', '$scope', 'routes', 'common', fu
 			common.confirm(options, function(answer) {
 				if(answer) {
 					$http.delete('/auth').then(
-						function(res) { common.session.login = res.data.login },
+						function(res) {
+							common.whoami()
+						},
 						function(err) {}
 					)
 				}
@@ -135,14 +167,6 @@ app.controller('Index', [ '$http', '$location', '$scope', 'routes', 'common', fu
 		}
 	}
 	
-	ctrl.rebuildMenu = function() {
-		ctrl.menu.length = 0
-		for(var i in routes) {
-			ctrl.menu.push({ route: routes[i].route, title: routes[i].title })
-		}
-		$location.path('/')
-    }
-
     ctrl.navClass = function(page) {
         return page === $location.path() ? 'active' : ''
     }
@@ -152,5 +176,4 @@ app.controller('Index', [ '$http', '$location', '$scope', 'routes', 'common', fu
         ctrl.isCollapsed = true
     })
 
-	ctrl.rebuildMenu()
 }])

@@ -141,4 +141,8 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
         ctrl.sort = field
         ctrl.pobierzWszystkieOdZera()
     }
+
+    ctrl.isVisible = function() {
+        return common.menu.find(function(el) { return el.route == '/projects' })
+    }
 }])

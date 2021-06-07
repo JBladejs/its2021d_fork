@@ -15,7 +15,7 @@ let auth = module.exports = {
     GET: function(env) {
         if(!isSessionValid(env)) return
         if(common.sessions[env.session].login) {
-            common.serveJson(env.res, 200, { login: common.sessions[env.session].login })
+            common.serveJson(env.res, 200, { login: common.sessions[env.session].login, roles: common.sessions[env.session].roles })
         } else {
             common.serveJson(env.res, 200, { login: null })
         }
@@ -33,6 +33,7 @@ let auth = module.exports = {
                 common.serveError(env.res, 401, 'Login failed')
             } else {
                 common.sessions[env.session].login = doc.email
+                common.sessions[env.session].roles = doc.roles
                 auth.GET(env)
             }
             return
@@ -44,6 +45,7 @@ let auth = module.exports = {
     DELETE: function(env) {
         if(!isSessionValid(env)) return
         delete common.sessions[env.session].login
+        delete common.sessions[env.session].roles
         auth.GET(env)
         return
     }

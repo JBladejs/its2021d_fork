@@ -96,12 +96,16 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji persons
                 case '/person':
-                    params = {
-                        searchFields: [ 'firstName', 'lastName', 'email' ],
-                        aggregation: [ { $project: { password: false } } ]
+                    if(common.sessions[env.session].roles.includes(2)) {
+                        params = {
+                            searchFields: [ 'firstName', 'lastName', 'email' ],
+                            aggregation: [ { $project: { password: false } } ]
+                        }
+                        addSortToParams()
+                        dbrest.handle(env, db.persons, params)
+                    } else {
+                        common.serveError(res, 403, 'Forbidden')
                     }
-                    addSortToParams()
-                    dbrest.handle(env, db.persons, params)
                     return
 
                 // endpoint do kolekcji projects
