@@ -96,7 +96,7 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji persons
                 case '/person':
-                    if(common.sessions[env.session].roles.includes(2)) {
+                    if(common.sessions[env.session].roles && common.sessions[env.session].roles.includes(2)) {
                         params = {
                             searchFields: [ 'firstName', 'lastName', 'email' ],
                             aggregation: [ { $project: { password: false } } ]
