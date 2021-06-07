@@ -1,4 +1,3 @@
-const sessions = require('./common')
 const common = require('./common')
 const db = require('./db')
 
@@ -25,7 +24,7 @@ let auth = module.exports = {
     // log in
     POST: function(env) {
         if(!isSessionValid(env)) return
-        if(!env.parsedPayload.login || !env.parsedPayload.password) {
+        if(!env.parsedPayload || !env.parsedPayload.login || !env.parsedPayload.password) {
             common.serveError(env.res, 401, 'No credentials passed')
             return
         }

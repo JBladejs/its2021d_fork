@@ -17,11 +17,16 @@ app.config(['$routeProvider', '$locationProvider', 'routes', function($routeProv
 }])
 
 // usługa wspólna
-app.service('common', [ '$uibModal', function($uibModal) {
+app.service('common', [ '$http', '$uibModal', function($http, $uibModal) {
 	let common = this
 	console.log('Usługa common wystartowała')
 
-	common.session = { login: '' }
+	common.session = { login: null }
+	$http.get('/auth').then(
+		function(res) { common.session.login = res.data.login },
+		function(err) {}
+	)
+	common.lastLogin = ''
 
 	common.alert = { type: 'alert-default', text: '' }
 	common.closeAlert = function() {
@@ -74,7 +79,7 @@ app.controller('Confirmation', [ '$uibModalInstance', 'options', function($uibMo
 	}
 }])
 
-app.controller('LoginForm', [ '$uibModalInstance', 'options', 'common', function($uibModalInstance, options, common) {
+app.controller('LoginForm', [ '$http', '$uibModalInstance', 'options', 'common', function($http, $uibModalInstance, options, common) {
     let ctrl = this
 	ctrl.options = options
     console.log('Kontroler LoginForm wystartował')
@@ -82,12 +87,18 @@ app.controller('LoginForm', [ '$uibModalInstance', 'options', 'common', function
 	ctrl.error = ''
 
 	ctrl.ok = function() {
-		// sprawdź kredencjały
-		if(ctrl.options.login && (ctrl.options.login == ctrl.options.password)) {
-			common.session.login = ctrl.options.login
-			$uibModalInstance.close()
-		} else {
-			ctrl.error = 'Logowanie nieudane'
+		// wyślij kredencjały
+		if(ctrl.options.login) {
+			$http.post('/auth', ctrl.options).then(
+				function(res) {
+					common.session.login = res.data.login
+					common.lastLogin = res.data.login
+					$uibModalInstance.close()		
+				},
+				function(err) {
+					ctrl.error = 'Logowanie nieudane'
+				}
+			)
 		}
 	}
 
@@ -97,7 +108,7 @@ app.controller('LoginForm', [ '$uibModalInstance', 'options', 'common', function
 }])
 
 // kontroler całej strony
-app.controller('Index', [ '$location', '$scope', 'routes', 'common', function($location, $scope, routes, common) {
+app.controller('Index', [ '$http', '$location', '$scope', 'routes', 'common', function($http, $location, $scope, routes, common) {
     let ctrl = this
 	console.log('Kontroler Index wystartował')
 	
@@ -109,12 +120,17 @@ app.controller('Index', [ '$location', '$scope', 'routes', 'common', function($l
 
 	ctrl.doLogin = function() {
 		if(!common.session.login) {
-			let options = { login: common.session.login }
+			let options = { login: common.lastLogin }
 			common.dialog('loginForm.html', 'LoginForm', options, function(res) {})
 		} else {
 			let options = { title: 'Wylogowywanie', body: 'Czy na pewno chcesz się wylogować?' }
-			common.confirm(options, function(res) {
-				if(res) common.session.login = ''
+			common.confirm(options, function(answer) {
+				if(answer) {
+					$http.delete('/auth').then(
+						function(res) { common.session.login = res.data.login },
+						function(err) {}
+					)
+				}
 			})
 		}
 	}

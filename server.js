@@ -96,7 +96,10 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji persons
                 case '/person':
-                    params = { searchFields: [ 'firstName', 'lastName', 'email' ] }
+                    params = {
+                        searchFields: [ 'firstName', 'lastName', 'email' ],
+                        aggregation: [ { $project: { password: false } } ]
+                    }
                     addSortToParams()
                     dbrest.handle(env, db.persons, params)
                     return
