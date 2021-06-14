@@ -103,7 +103,12 @@ httpServer.on('request', function(req, res) {
                             aggregation: [
                                 { $lookup: { from: 'projects', localField: 'projects', foreignField: '_id', as: 'projects' } },
                                 { $project: { password: false } }
-                            ]
+                            ],
+                            inputTransformation: function(payload) {
+                                if(Array.isArray(payload.projects)) {
+                                    payload.projects = payload.projects.map(function(el) { return db.ObjectId(el._id) })
+                                }
+                            }
                         }
                         addSortToParams()
                         dbrest.handle(env, db.persons, params)
