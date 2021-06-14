@@ -119,4 +119,9 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
     ctrl.isVisible = function() {
         return common.menu.find(function(el) { return el.route == '/projects' })
     }
+
+    ctrl.opisProjektu = function(project) {
+        let options = { project: project }
+        common.dialog('projectDescription.html', 'ProjectDescription', options, function(res) {})
+    }
 }])

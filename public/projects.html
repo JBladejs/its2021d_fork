@@ -29,11 +29,11 @@
         </tr>
         <tr ng-repeat="project in ctrl.data.records" ng-mouseover="ctrl.selected = $index" ng-mouseleave="ctrl.selected = -1">
             <td>
-                <span ng-bind="project.shortName" ng-if="ctrl.editedProject.index != $index"></span>
+                <span ng-bind="project.shortName" ng-if="ctrl.editedProject.index != $index" ng-click="ctrl.opisProjektu(project)"></span>
                 <input class="form-control" ng-model="ctrl.editedProject.shortName" ng-if="ctrl.editedProject.index == $index"/>
             </td>
             <td>
-                <span ng-bind="project.name" ng-if="ctrl.editedProject.index != $index"></span>
+                <span ng-bind="project.name" ng-if="ctrl.editedProject.index != $index" ng-click="ctrl.opisProjektu(project)"></span>
                 <input class="form-control" ng-model="ctrl.editedProject.name" ng-if="ctrl.editedProject.index == $index"/>
             </td>
             <td nowrap>
