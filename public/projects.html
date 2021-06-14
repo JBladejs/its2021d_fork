@@ -27,7 +27,7 @@
                 Akcja
             </th>
         </tr>
-        <tr ng-repeat="project in ctrl.data.records" ng-mouseover="ctrl.selected = $index" ng-mouseleave="ctrl.selected = -1" ng-class="{ rowSelected: ctrl.lastChanged == project._id }">
+        <tr ng-repeat="project in ctrl.data.records" ng-mouseover="ctrl.selected = $index" ng-mouseleave="ctrl.selected = -1">
             <td>
                 <span ng-bind="project.shortName" ng-if="ctrl.editedProject.index != $index"></span>
                 <input class="form-control" ng-model="ctrl.editedProject.shortName" ng-if="ctrl.editedProject.index == $index"/>

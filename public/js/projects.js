@@ -13,7 +13,6 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
     ctrl.sort = 'lastName'
 
     ctrl.selected = -1
-    ctrl.lastChanged = null
     ctrl.newProject = { shortName: '', name: '' }
     ctrl.editedProject = { index: -1, shortName: '', name: '' }
 
@@ -35,12 +34,10 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
     ctrl.wyslij = function() {
         $http.post('/project', ctrl.newProject).then(
             function(res) {
-                setLastChanged(res.data._id, function() {
-                    ctrl.newProject.shortName = ''
-                    ctrl.newProject.name = ''
-                    ctrl.pobierzWszystkie()
-                    common.showAlert('success', 'Utworzono projekt ' + res.data.shortName)
-                })
+                ctrl.newProject.shortName = ''
+                ctrl.newProject.name = ''
+                ctrl.pobierzWszystkie()
+                common.showAlert('success', 'Utworzono projekt ' + res.data.shortName)
             },
             function(err) {}
         )
@@ -52,7 +49,6 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
             if(res) {
                 $http.delete('/project').then(
                     function(res) {
-                        ctrl.lastChanged = null
                         ctrl.pobierzWszystkieOdZera()
                         common.showAlert('success', 'Usunięto wszystkie projekty')
                     },
@@ -67,7 +63,6 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
             function(res) {
                 ctrl.editedProject = res.data
                 ctrl.editedProject.index = index
-                ctrl.lastChanged = null
             },
             function(err) {}
         )
@@ -77,10 +72,8 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
         delete ctrl.editedProject.index
         $http.put('/project', ctrl.editedProject).then(
             function(res) {
-                setLastChanged(ctrl.editedProject._id, function() {
-                    common.showAlert('success', 'Zmodyfikowano projekt ' + res.data.shortName)
-                    ctrl.pobierzWszystkie()
-                })
+                common.showAlert('success', 'Zmodyfikowano projekt ' + res.data.shortName)
+                ctrl.pobierzWszystkie()
             },
             function(err) {}
         )
@@ -90,7 +83,6 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
         let to_del = ctrl.data.records[index].shortName
         $http.delete('/project?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
-                ctrl.lastChanged = null
                 if(ctrl.skip + 1 >= ctrl.data.filtered)
                     ctrl.poprzedniaPorcja()
                 else 
@@ -117,24 +109,6 @@ app.controller('Projects', [ '$http', 'common',  function($http, common) {
     ctrl.nastepnaPorcja = function() {
         ctrl.skip += ctrl.limit
         ctrl.pobierzWszystkie()
-    }
-
-    var setLastChanged = function(_id, nextTick) {
-        $http.get('/project?search=' + ctrl.search).then(
-            function(res) {
-                let index = res.data.records.findIndex(function(el) { return el._id == _id } )
-                if(index < 0) {
-                    ctrl.lastChanged = null
-                } else {
-                    ctrl.lastChanged = _id
-                    ctrl.skip = Math.floor(index / ctrl.limit) * ctrl.limit
-                }
-                nextTick()
-            },
-            function(err) {
-                nextTick()
-            }
-        )
     }
 
     ctrl.resort = function(field) {

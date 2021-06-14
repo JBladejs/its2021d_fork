@@ -1,4 +1,4 @@
-let app = angular.module('its2021d', [ 'ngRoute', 'ngSanitize', 'ngAnimate', 'ui.bootstrap' ])
+let app = angular.module('its2021d', [ 'ngRoute', 'ngSanitize', 'ngAnimate', 'ui.bootstrap', 'ct-ui.select' ])
 
 // menu routera
 app.constant('routes', [

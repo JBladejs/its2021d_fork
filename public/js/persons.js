@@ -13,9 +13,9 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     ctrl.sort = 'lastName'
 
     ctrl.selected = -1
-    ctrl.lastChanged = null
-    ctrl.newPerson = { shortName: '', lastName: '', email: '' }
-    ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '' }
+    ctrl.newPerson = { shortName: '', lastName: '', email: '', projects: [] }
+    ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '', projects: [] }
+    ctrl.projects = []
 
     ctrl.pobierzWszystkie = function() {
         $http.get('/person?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
@@ -35,13 +35,12 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     ctrl.wyslij = function() {
         $http.post('/person', ctrl.newPerson).then(
             function(res) {
-                setLastChanged(res.data._id, function() {
-                    ctrl.newPerson.firstName = ''
-                    ctrl.newPerson.lastName = ''
-                    ctrl.newPerson.email = ''
-                    ctrl.pobierzWszystkie()
-                    common.showAlert('success', 'Utworzono osobę ' + res.data.firstName + ' ' + res.data.lastName)    
-                })
+                ctrl.pobierzWszystkie()
+                common.showAlert('success', 'Utworzono osobę ' + res.data.firstName + ' ' + res.data.lastName)
+                ctrl.newPerson.firstName = ''    
+                ctrl.newPerson.lastName = ''
+                ctrl.newPerson.email = ''
+                ctrl.newPerson.projects = []
             },
             function(err) {}
         )
@@ -53,7 +52,6 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
             if(res) {
                 $http.delete('/person').then(
                     function(res) {
-                        ctrl.lastChanged = null
                         ctrl.pobierzWszystkieOdZera()
                         common.showAlert('success', 'Usunięto wszystkie osoby')
                     },
@@ -68,7 +66,6 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
             function(res) {
                 ctrl.editedPerson = res.data
                 ctrl.editedPerson.index = index
-                ctrl.lastChanged = null
             },
             function(err) {}
         )
@@ -78,10 +75,8 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
         delete ctrl.editedPerson.index
         $http.put('/person', ctrl.editedPerson).then(
             function(res) {
-                setLastChanged(ctrl.editedPerson._id, function() {
-                    ctrl.pobierzWszystkie()
-                    common.showAlert('success', 'Zmodyfikowano osobę ' + res.data.firstName + ' ' + res.data.lastName)
-                })
+                ctrl.pobierzWszystkie()
+                common.showAlert('success', 'Zmodyfikowano osobę ' + res.data.firstName + ' ' + res.data.lastName)
             },
             function(err) {}
         )
@@ -91,7 +86,6 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
         let to_del = ctrl.data.records[index].firstName + ' ' + ctrl.data.records[index].lastName
         $http.delete('/person?_id=' + ctrl.data.records[index]._id).then(
             function(res) {
-                ctrl.lastChanged = null
                 if(ctrl.skip + 1 >= ctrl.data.filtered)
                     ctrl.poprzedniaPorcja()
                 else 
@@ -101,8 +95,6 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
             function(err) {}
         )
     }
-
-    ctrl.pobierzWszystkie()
 
     ctrl.doczytaj = function() {
         ctrl.limit += ctrl.dataPortion
@@ -120,24 +112,6 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
         ctrl.pobierzWszystkie()
     }
 
-    var setLastChanged = function(_id, nextTick) {
-        $http.get('/person?search=' + ctrl.search).then(
-            function(res) {
-                let index = res.data.records.findIndex(function(el) { return el._id == _id } )
-                if(index < 0) {
-                    ctrl.lastChanged = null
-                } else {
-                    ctrl.lastChanged = _id
-                    ctrl.skip = Math.floor(index / ctrl.limit) * ctrl.limit
-                }
-                nextTick()
-            },
-            function(err) {
-                nextTick()
-            }
-        )
-    }
-
     ctrl.resort = function(field) {
         ctrl.sort = field
         ctrl.pobierzWszystkieOdZera()
@@ -146,4 +120,11 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     ctrl.isVisible = function() {
         return common.menu.find(function(el) { return el.route == '/persons' })
     }
+
+    ctrl.pobierzWszystkie()
+    $http.get('/project').then(
+        function(res) { ctrl.projects = res.data.records },
+        function(err) {}
+    )
+
 }])
