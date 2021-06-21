@@ -24,6 +24,9 @@
                 <span ng-click="ctrl.resort('name')">Nazwa</span>
             </th>
             <th>
+                <span ng-click="ctrl.resort('date')">Data</span>
+            </th>
+            <th>
                 Akcja
             </th>
         </tr>
@@ -35,6 +38,10 @@
             <td>
                 <span ng-bind="task.name" ng-if="ctrl.editedTask.index != $index"></span>
                 <input class="form-control" ng-model="ctrl.editedTask.name" ng-if="ctrl.editedTask.index == $index"/>
+            </td>
+            <td>
+                <span ng-bind="task.date" ng-if="ctrl.editedTask.index != $index"></span>
+                <input type="date" class="form-control" ng-model="ctrl.editedTask.date" ng-if="ctrl.editedTask.index == $index"/>
             </td>
             <td nowrap>
                 <button class="btn btn-sm btn-default fa fa-edit" ng-click="ctrl.wybierz($index)" ng-if="ctrl.selected == $index && ctrl.editedTask.index != $index"></button>
@@ -49,6 +56,9 @@
             </td>
             <td>
                 <input type="text" class="form-control" ng-model="ctrl.newTask.name" placeholder="nazwa"/>
+            </td>
+            <td>
+                <input type="date" class="form-control" ng-model="ctrl.newTask.date" placeholder="data"/>
             </td>
             <td nowrap>
                 <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newTask.shortName || !ctrl.newTask.name"></button>
