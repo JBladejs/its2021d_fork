@@ -13,8 +13,8 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.sort = 'shortName'
 
     ctrl.selected = -1
-    ctrl.newTask = { shortName: '', name: '' }
-    ctrl.editedTask = { index: -1, shortName: '', name: '' }
+    ctrl.newTask = { shortName: '', name: '', date: '' }
+    ctrl.editedTask = { index: -1, shortName: '', name: '', date: '' }
 
     ctrl.pobierzWszystkie = function() {
         $http.get('/task?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
@@ -36,6 +36,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
             function(res) {
                 ctrl.newTask.shortName = ''
                 ctrl.newTask.name = ''
+                ctrl.newTask.date = ''
                 ctrl.pobierzWszystkie()
                 common.showAlert('success', 'Utworzono zadanie ' + res.data.shortName)
             },
