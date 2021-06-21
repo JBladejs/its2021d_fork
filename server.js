@@ -126,7 +126,7 @@ httpServer.on('request', function(req, res) {
 
                 // endpoint do kolekcji tasks
                 case '/task':
-                    params = { searchFields: [ 'shortName', 'name' ] }
+                    params = { searchFields: [ 'shortName', 'name', 'date' ] }
                     addSortToParams()
                     dbrest.handle(env, db.tasks, params)
                     return
