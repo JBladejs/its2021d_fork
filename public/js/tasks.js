@@ -13,8 +13,9 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.sort = 'shortName'
 
     ctrl.selected = -1
-    ctrl.newTask = { shortName: '', name: '', date: '' }
-    ctrl.editedTask = { index: -1, shortName: '', name: '', date: '' }
+    ctrl.newTask = { shortName: '', name: '', date: '', projects: [] }
+    ctrl.editedTask = { index: -1, shortName: '', name: '', date: '', projects: [] }
+    ctrl.projects = []
 
     ctrl.convert = function(date) {
         let day = date.getDate()
@@ -47,6 +48,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
                 ctrl.newTask.shortName = ''
                 ctrl.newTask.name = ''
                 ctrl.newTask.date = ''
+                ctrl.projects = []
                 ctrl.pobierzWszystkie()
                 common.showAlert('success', 'Utworzono zadanie ' + res.data.shortName)
             },
@@ -105,8 +107,6 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
         )
     }
 
-    ctrl.pobierzWszystkie()
-
     ctrl.doczytaj = function() {
         ctrl.limit += ctrl.dataPortion
         ctrl.pobierzWszystkie()
@@ -131,6 +131,12 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.isVisible = function() {
         return common.menu.find(function(el) { return el.route == '/tasks' })
     }
+
+    ctrl.pobierzWszystkie()
+    $http.get('/project').then(
+        function(res) { ctrl.projects = res.data.records },
+        function(err) {}
+    )
 
     //TODO: use later for a higher grade
     // ctrl.opisProjektu = function(project) {

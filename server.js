@@ -124,11 +124,27 @@ httpServer.on('request', function(req, res) {
                     dbrest.handle(env, db.projects, params)
                     return
 
+                //TODO: make so there's only one project for every task
                 // endpoint do kolekcji tasks
                 case '/task':
-                    params = { searchFields: [ 'shortName', 'name', 'date' ] }
-                    addSortToParams()
-                    dbrest.handle(env, db.tasks, params)
+                    if(common.sessions[env.session].roles && common.sessions[env.session].roles.includes(2)) {
+                        params = {
+                            searchFields: [ 'shortName', 'name', 'date' ],
+                            aggregation: [
+                                { $lookup: { from: 'projects', localField: 'projects', foreignField: '_id', as: 'projects' } },
+                                { $project: { password: false } }
+                            ],
+                            inputTransformation: function(payload) {
+                                if(Array.isArray(payload.projects)) {
+                                    payload.projects = payload.projects.map(function(el) { return db.ObjectId(el._id) })
+                                }
+                            }
+                        }
+                        addSortToParams()
+                        dbrest.handle(env, db.tasks, params)
+                    } else {
+                        common.serveError(res, 403, 'Forbidden')
+                    }
                     return
 
                 // serwowanie statycznej treści
