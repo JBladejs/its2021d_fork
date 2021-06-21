@@ -4,7 +4,8 @@ let app = angular.module('its2021d', [ 'ngRoute', 'ngSanitize', 'ngAnimate', 'ui
 app.constant('routes', [
 	{ route: '/', templateUrl: 'home.html', controller: 'Home', controllerAs: 'ctrl', title: '<i class="fa fa-lg fa-home"></i>' },
 	{ route: '/persons', templateUrl: 'persons.html', controller: 'Persons', controllerAs: 'ctrl', title: 'Osoby', roles: [ 2 ] },
-	{ route: '/projects', templateUrl: 'projects.html', controller: 'Projects', controllerAs: 'ctrl', title: 'Projekty', roles: [ 1, 2 ] }
+	{ route: '/projects', templateUrl: 'projects.html', controller: 'Projects', controllerAs: 'ctrl', title: 'Projekty', roles: [ 1, 2 ] },
+	{ route: '/tasks', templateUrl: 'tasks.html', controller: 'Tasks', controllerAs: 'ctrl', title: 'Zadania', roles: [ 1 ] },
 ])
 
 // instalacja routera

@@ -4,6 +4,7 @@ const db = module.exports = {
 
     persons: null,
     projects: null,
+    tasks: null,
 
     ObjectId: mongodb.ObjectId,
 
@@ -16,6 +17,7 @@ const db = module.exports = {
             var adb = conn.db(dbName)
             db.persons = adb.collection('persons')
             db.projects = adb.collection('projects')
+            db.tasks = adb.collection('tasks')
             nextTick()
         })
     }

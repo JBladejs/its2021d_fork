@@ -124,6 +124,13 @@ httpServer.on('request', function(req, res) {
                     dbrest.handle(env, db.projects, params)
                     return
 
+                // endpoint do kolekcji tasks
+                case '/task':
+                    params = { searchFields: [ 'shortName', 'name' ] }
+                    addSortToParams()
+                    dbrest.handle(env, db.tasks, params)
+                    return
+
                 // serwowanie statycznej treści
                 default:
                     if(req.method == 'GET') {
