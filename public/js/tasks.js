@@ -16,6 +16,10 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.newTask = { shortName: '', name: '', date: '' }
     ctrl.editedTask = { index: -1, shortName: '', name: '', date: '' }
 
+    ctrl.convert = function(date) {
+        return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear()
+    }
+
     ctrl.pobierzWszystkie = function() {
         $http.get('/task?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
             function(res) {
@@ -32,6 +36,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     }
 
     ctrl.wyslij = function() {
+        ctrl.newTask.date = ctrl.convert(ctrl.newTask.date)
         $http.post('/task', ctrl.newTask).then(
             function(res) {
                 ctrl.newTask.shortName = ''
@@ -70,6 +75,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     }
 
     ctrl.zapisz = function() {
+        ctrl.editedTask.date = ctrl.convert(ctrl.editedTask.date)
         delete ctrl.editedTask.index
         $http.put('/task', ctrl.editedTask).then(
             function(res) {
