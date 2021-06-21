@@ -58,10 +58,10 @@
                 <input type="text" class="form-control" ng-model="ctrl.newTask.name" placeholder="nazwa"/>
             </td>
             <td>
-                <input type="date" class="form-control" ng-model="ctrl.newTask.date" placeholder="data"/>
+                <input type="date" class="form-control" ng-model="ctrl.newTask.date"/>
             </td>
             <td nowrap>
-                <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newTask.shortName || !ctrl.newTask.name"></button>
+                <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newTask.shortName || !ctrl.newTask.name || !ctrl.newTask.date"></button>
                 <button class="btn btn-sm btn-danger fa fa-trash" ng-click="ctrl.zeruj()"></button>
             </td>
         </tr>
