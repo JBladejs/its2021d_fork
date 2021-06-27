@@ -127,11 +127,11 @@ httpServer.on('request', function(req, res) {
                 //TODO: make so there's only one project for every task
                 // endpoint do kolekcji tasks
                 case '/task':
-                    if(common.sessions[env.session].roles && common.sessions[env.session].roles.includes(2)) {
+                    if(common.sessions[env.session].roles && common.sessions[env.session].roles.includes(1)) {
                         params = {
                             searchFields: [ 'shortName', 'name', 'date' ],
                             aggregation: [
-                                { $lookup: { from: 'projects', localField: 'project', foreignField: '_id', as: 'projects' } },
+                                { $lookup: { from: 'projects', localField: 'project', foreignField: '_id', as: 'projects)"' } },
                                 { $project: { password: false } }
                             ],
                             inputTransformation: function(payload) {
