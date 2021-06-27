@@ -13,9 +13,9 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     ctrl.sort = 'lastName'
 
     ctrl.selected = -1
-    ctrl.newPerson = { shortName: '', lastName: '', email: '', projects: [] }
-    ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '', projects: [] }
-    ctrl.projects = []
+    ctrl.newPerson = { shortName: '', lastName: '', email: '', tasks: [] }
+    ctrl.editedPerson = { index: -1, firstName: '', lastName: '', email: '', tasks: [] }
+    ctrl.tasks = []
 
     ctrl.pobierzWszystkie = function() {
         $http.get('/person?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
@@ -40,7 +40,7 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
                 ctrl.newPerson.firstName = ''    
                 ctrl.newPerson.lastName = ''
                 ctrl.newPerson.email = ''
-                ctrl.newPerson.projects = []
+                ctrl.newPerson.tasks = []
             },
             function(err) {}
         )
@@ -122,8 +122,8 @@ app.controller('Persons', [ '$http', 'common', function($http, common) {
     }
 
     ctrl.pobierzWszystkie()
-    $http.get('/project').then(
-        function(res) { ctrl.projects = res.data.records },
+    $http.get('/task').then(
+        function(res) { ctrl.tasks = res.data.records },
         function(err) {}
     )
 

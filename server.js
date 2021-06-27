@@ -101,12 +101,12 @@ httpServer.on('request', function(req, res) {
                         params = {
                             searchFields: [ 'firstName', 'lastName', 'email' ],
                             aggregation: [
-                                { $lookup: { from: 'projects', localField: 'projects', foreignField: '_id', as: 'projects' } },
+                                { $lookup: { from: 'tasks', localField: 'tasks', foreignField: '_id', as: 'tasks' } },
                                 { $project: { password: false } }
                             ],
                             inputTransformation: function(payload) {
-                                if(Array.isArray(payload.projects)) {
-                                    payload.projects = payload.projects.map(function(el) { return db.ObjectId(el._id) })
+                                if(Array.isArray(payload.tasks)) {
+                                    payload.tasks = payload.tasks.map(function(el) { return db.ObjectId(el._id) })
                                 }
                             }
                         }
