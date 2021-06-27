@@ -137,10 +137,4 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
         function(res) { ctrl.projects = res.data.records },
         function(err) {}
     )
-
-    //TODO: use later for a higher grade
-    // ctrl.opisProjektu = function(project) {
-    //     let options = { project: project }
-    //     common.dialog('projectDescription.html', 'ProjectDescription', options, function(res) {})
-    // }
 }])
