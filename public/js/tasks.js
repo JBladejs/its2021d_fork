@@ -18,13 +18,23 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.projects = 
 
     ctrl.convert = function(date) {
-        let day = date.getDate()
-        let month = date.getMonth() + 1
-        let year = date.getFullYear()
+        typedDate = new Date(date)
+        let day = typedDate.getDate()
+        let month = typedDate.getMonth() + 1
+        let year = typedDate.getFullYear()
         if (day < 10) day = "0" + day
         if (month < 10) month = "0" + month
         return day + "/" + month + "/" + year
     }
+
+    // ctrl.convert = function(date) {
+    //     let day = date.getDate()
+    //     let month = date.getMonth() + 1
+    //     let year = date.getFullYear()
+    //     if (day < 10) day = "0" + day
+    //     if (month < 10) month = "0" + month
+    //     return day + "/" + month + "/" + year
+    // }
 
     ctrl.pobierzWszystkie = function() {
         $http.get('/task?sort=' + ctrl.sort + '&search=' + ctrl.search + "&skip=" + ctrl.skip + "&limit=" + ctrl.limit).then(
@@ -42,7 +52,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     }
 
     ctrl.wyslij = function() {
-        ctrl.newTask.date = ctrl.convert(ctrl.newTask.date)
+        // ctrl.newTask.date = ctrl.convert(ctrl.newTask.date)
         $http.post('/task', ctrl.newTask).then(
             function(res) {
                 ctrl.newTask.shortName = ''
@@ -82,7 +92,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     }
 
     ctrl.zapisz = function() {
-        ctrl.editedTask.date = ctrl.convert(ctrl.editedTask.date)
+        // ctrl.editedTask.date = ctrl.convert(ctrl.editedTask.date)
         delete ctrl.editedTask.index
         $http.put('/task', ctrl.editedTask).then(
             function(res) {

@@ -43,7 +43,7 @@
                 <input class="form-control" ng-model="ctrl.editedTask.name" ng-if="ctrl.editedTask.index == $index"/>
             </td>
             <td>
-                <span ng-bind="task.date" ng-if="ctrl.editedTask.index != $index"></span>
+                <span ng-bind="ctrl.convert(task.date)" ng-if="ctrl.editedTask.index != $index"></span>
                 <input type="date" class="form-control" ng-model="ctrl.editedTask.date" ng-if="ctrl.editedTask.index == $index"/>
             </td>
             <td>
