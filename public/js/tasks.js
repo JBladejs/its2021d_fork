@@ -13,9 +13,9 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
     ctrl.sort = 'shortName'
 
     ctrl.selected = -1
-    ctrl.newTask = { shortName: '', name: '', date: '', projects: [] }
-    ctrl.editedTask = { index: -1, shortName: '', name: '', date: '', projects: [] }
-    ctrl.projects = []
+    ctrl.newTask = { shortName: '', name: '', date: '', project: '' }
+    ctrl.editedTask = { index: -1, shortName: '', name: '', date: '', project: '' }
+    ctrl.projects = 
 
     ctrl.convert = function(date) {
         let day = date.getDate()
@@ -48,7 +48,7 @@ app.controller('Tasks', [ '$http', 'common',  function($http, common) {
                 ctrl.newTask.shortName = ''
                 ctrl.newTask.name = ''
                 ctrl.newTask.date = ''
-                ctrl.projects = []
+                ctrl.newTask.project = ''
                 ctrl.pobierzWszystkie()
                 common.showAlert('success', 'Utworzono zadanie ' + res.data.shortName)
             },

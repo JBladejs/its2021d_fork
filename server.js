@@ -131,7 +131,7 @@ httpServer.on('request', function(req, res) {
                         params = {
                             searchFields: [ 'shortName', 'name', 'date' ],
                             aggregation: [
-                                { $lookup: { from: 'projects', localField: 'projects', foreignField: '_id', as: 'projects' } },
+                                { $lookup: { from: 'projects', localField: 'project', foreignField: '_id', as: 'projects' } },
                                 { $project: { password: false } }
                             ],
                             inputTransformation: function(payload) {

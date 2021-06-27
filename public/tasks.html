@@ -27,7 +27,7 @@
                 <span ng-click="ctrl.resort('date')">Data</span>
             </th>
             <th>
-                Projekty
+                <span ng-click="ctrl.resort('project')">Projekt</span>
             </th>
             <th>
                 Akcja
@@ -47,10 +47,8 @@
                 <input type="date" class="form-control" ng-model="ctrl.editedTask.date" ng-if="ctrl.editedTask.index == $index"/>
             </td>
             <td>
-                <span ng-if="ctrl.editedTask.index != $index">
-                    <span ng-repeat="project in task.projects" ng-bind="project.shortName + ' '"></span>
-                </span>
-                <ui-select multiple ng-model="ctrl.editedTask.projects" close-on-select="false" ng-if="ctrl.editedTask.index == $index">
+                <span ng-bind="task.project.shortName" ng-if="ctrl.editedTask.index != $index"></span>
+                <ui-select ng-model="ctrl.editedTask.project" close-on-select="true" ng-if="ctrl.editedTask.index == $index" ng-required="true">
                     <ui-select-match placeholder="...">{{$item.shortName}}</ui-select-match>
                     <ui-select-choices repeat="project in ctrl.projects">
                       <div ng-bind="project.name"></div>
@@ -60,7 +58,7 @@
             </td>
             <td nowrap>
                 <button class="btn btn-sm btn-default fa fa-edit" ng-click="ctrl.wybierz($index)" ng-if="ctrl.selected == $index && ctrl.editedTask.index != $index"></button>
-                <button class="btn btn-sm btn-default fa fa-check" ng-click="ctrl.zapisz()" ng-if="ctrl.editedTask.index == $index" ng-disabled="!ctrl.editedTask.shortName || !ctrl.editedTask.name"></button>
+                <button class="btn btn-sm btn-default fa fa-check" ng-click="ctrl.zapisz()" ng-if="ctrl.editedTask.index == $index" ng-disabled="!ctrl.editedTask.shortName || !ctrl.editedTask.name || !ctrl.editedTask.date || !ctrl.editedTask.project"></button>
                 <button class="btn btn-sm btn-default fa fa-times" ng-click="ctrl.editedTask = -1" ng-if="ctrl.editedTask.index == $index"></button>
                 <button class="btn btn-sm btn-default fa fa-trash" ng-click="ctrl.usun($index)" ng-if="ctrl.editedTask.index == $index"></button>
             </td>
@@ -76,7 +74,7 @@
                 <input type="date" class="form-control" ng-model="ctrl.newTask.date"/>
             </td>
             <td>
-                <ui-select multiple ng-model="ctrl.newTask.projects" close-on-select="false">
+                <ui-select ng-model="ctrl.newTask.project" close-on-select="true" ng-required="true">
                     <ui-select-match placeholder="...">{{$item.shortName}}</ui-select-match>
                     <ui-select-choices repeat="project in ctrl.projects">
                       <div ng-bind="project.name"></div>
@@ -85,7 +83,7 @@
                 </ui-select>            
             </td>
             <td nowrap>
-                <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newTask.shortName || !ctrl.newTask.name || !ctrl.newTask.date"></button>
+                <button class="btn btn-sm btn-primary fa fa-plus" ng-click="ctrl.wyslij()" ng-disabled="!ctrl.newTask.shortName || !ctrl.newTask.name || !ctrl.newTask.date || !ctrl.newTask.project"></button>
                 <button class="btn btn-sm btn-danger fa fa-trash" ng-click="ctrl.zeruj()"></button>
             </td>
         </tr>
